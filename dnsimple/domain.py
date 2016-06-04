@@ -9,7 +9,7 @@ class Domain:
             setattr(self, key, value)
 
     def records(self):
-        return RecordCollection(self, self.credentials)
+        return RecordCollection(self.credentials, self)
 
     def to_dict(self):
         return self.attributes

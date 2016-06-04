@@ -5,9 +5,9 @@ from .record  import Record
 
 class RecordCollection:
 
-    def __init__(self, domain, credentials):
-        self.domain      = domain
+    def __init__(self, credentials, domain):
         self.credentials = credentials
+        self.domain      = domain
 
     def all(self):
         return map(lambda a: Record(self.credentials, self.domain, a), self.to_dict())
@@ -21,8 +21,8 @@ class RecordCollection:
         )
 
     def add(self, attributes):
-        request  = Request(self.credentials)
-        response = request.post('domains/{0}/records'.format(self.domain.name), {'record': attributes})
+        record   = None
+        response = self.request().post('domains/{0}/records'.format(self.domain.name), {'record': attributes})
 
         if response.was_successful():
             data   = response.to_dict()
@@ -31,10 +31,12 @@ class RecordCollection:
         return record
 
     def to_dict(self):
-        request  = Request(self.credentials)
-        response = request.get('domains/{0}/records'.format(self.domain.name))
+        response = self.request().get('domains/{0}/records'.format(self.domain.name))
 
         return map(lambda el: el['record'], response.to_dict())
 
     def __iter__(self):
         return iter(self.all())
+
+    def request(self):
+        return Request(self.credentials)

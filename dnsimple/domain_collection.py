@@ -18,10 +18,8 @@ class DomainCollection:
         )
 
     def add(self, attributes):
-        domain = None
-
-        request  = Request(self.credentials)
-        response = request.post('domains', {'domain': attributes})
+        domain   = None
+        response = self.request().post('domains', {'domain': attributes})
 
         if response.was_successful():
             data   = response.to_dict()
@@ -30,10 +28,11 @@ class DomainCollection:
         return domain
 
     def to_dict(self):
-        request  = Request(self.credentials)
-        response = request.get('domains')
-
+        response = self.request().get('domains')
         return map(lambda el: el['domain'], response.to_dict())
+
+    def request(self):
+        return Request(self.credentials)
 
     def __iter__(self):
         return iter(self.all())
