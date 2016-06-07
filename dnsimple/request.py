@@ -1,6 +1,8 @@
 import json
 import requests
 
+from  requests.exceptions import RequestException
+
 from .response import Response
 
 class Request:
@@ -43,26 +45,32 @@ class Request:
         return auth
 
     def get(self, endpoint):
-        try:
-            raw = requests.get(self.request_uri(endpoint), headers = self.headers(), auth=self.basic_auth())
-            return Response(raw)
-        except Exception:
-            return Response(None)
+        return self.__handle_request(lambda:
+            requests.get(self.request_uri(endpoint),
+                headers = self.headers(),
+                auth    = self.basic_auth()
+            )
+        )
 
     def post(self, endpoint, data):
-        try:
-            raw = requests.post(self.request_uri(endpoint),
+        return self.__handle_request(lambda:
+            requests.post(self.request_uri(endpoint),
                 headers = self.headers(),
                 auth    = self.basic_auth(),
                 data    = json.dumps(data)
             )
-            return Response(raw)
-        except Exception:
-            return Response(None)
+        )
 
     def delete(self, endpoint):
+        return self.__handle_request(lambda:
+            requests.delete(self.request_uri(endpoint),
+                headers = self.headers(),
+                auth    = self.basic_auth()
+            )
+        )
+
+    def __handle_request(self, callback):
         try:
-            raw = requests.delete(self.request_uri(endpoint), headers = self.headers(), auth = self.basic_auth())
-            return Response(raw)
-        except Exception:
+            return Response(callback())
+        except requests.exceptions.RequestException:
             return Response(None)
