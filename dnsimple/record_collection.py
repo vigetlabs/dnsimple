@@ -1,9 +1,7 @@
-import json
+from .collection import Collection
+from .record     import Record
 
-from .request import Request
-from .record  import Record
-
-class RecordCollection:
+class RecordCollection(Collection, object):
 
     def __init__(self, credentials, domain):
         self.credentials = credentials
@@ -11,14 +9,6 @@ class RecordCollection:
 
     def all(self):
         return map(lambda a: Record(self.credentials, self.domain, a), self.to_dict())
-
-    def find(self, id_or_name):
-        records = self.all()
-
-        return next(
-            (r for r in records if id_or_name in [r.id, r.name]),
-            None
-        )
 
     def add(self, attributes):
         record   = None
@@ -34,9 +24,3 @@ class RecordCollection:
         response = self.request().get('domains/{0}/records'.format(self.domain.name))
 
         return map(lambda el: el['record'], response.to_dict())
-
-    def __iter__(self):
-        return iter(self.all())
-
-    def request(self):
-        return Request(self.credentials)

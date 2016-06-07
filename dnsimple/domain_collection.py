@@ -1,21 +1,13 @@
-from .domain  import Domain
-from .request import Request
+from .collection import Collection
+from .domain     import Domain
 
-class DomainCollection:
+class DomainCollection(Collection, object):
 
     def __init__(self, credentials):
         self.credentials = credentials
 
     def all(self):
         return map(lambda a: Domain(self.credentials, a), self.to_dict())
-
-    def find(self, id_or_name):
-        domains = self.all()
-
-        return next(
-            (d for d in domains if id_or_name in [d.id, d.name]),
-            None
-        )
 
     def add(self, attributes):
         domain   = None
@@ -30,9 +22,3 @@ class DomainCollection:
     def to_dict(self):
         response = self.request().get('domains')
         return map(lambda el: el['domain'], response.to_dict())
-
-    def request(self):
-        return Request(self.credentials)
-
-    def __iter__(self):
-        return iter(self.all())
