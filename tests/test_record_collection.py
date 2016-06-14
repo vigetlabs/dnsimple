@@ -1,6 +1,7 @@
 import pytest
 
 from .context import dnsimple
+from .helper  import TestHelper
 
 from dnsimple.credentials       import Credentials
 from dnsimple.domain            import Domain
@@ -20,7 +21,7 @@ def domain(credentials):
 def subject(credentials, domain):
     return RecordCollection(credentials, domain)
 
-class TestRecordCollection:
+class TestRecordCollection(TestHelper, object):
     def test_request_creates_request_with_credentials(self, subject, credentials):
         request = subject.request()
 
@@ -28,16 +29,8 @@ class TestRecordCollection:
         assert request.credentials == credentials
 
     def test_to_dict_returns_condensed_attribute_collection_on_success(self, mocker, subject, credentials):
-        response = Response()
-        response.to_dict = lambda: [{'record': {'name':'www'}}]
-
-        request = mocker.stub()
-        request.return_value = response
-
-        subject.request = lambda: other
-
-        other = dnsimple.request.Request(credentials)
-        mocker.patch.object(other, 'get', request)
+        response = self.stub_response([{'record': {'name':'www'}}])
+        request  = self.stub_request(subject, mocker, response)
 
         result = subject.to_dict()
 
@@ -46,16 +39,8 @@ class TestRecordCollection:
         assert result == [{'name':'www'}]
 
     def test_to_dict_returns_empty_array_on_failure(self, mocker, subject, credentials):
-        response = Response()
-        response.was_successful = lambda: False
-
-        request = mocker.stub()
-        request.return_value = response
-
-        subject.request = lambda: other
-
-        other = dnsimple.request.Request(credentials)
-        mocker.patch.object(other, 'get', request)
+        response = self.stub_response([], success = False)
+        request  = self.stub_request(subject, mocker, response)
 
         assert subject.to_dict() == []
 
@@ -73,15 +58,35 @@ class TestRecordCollection:
 
     def test_find_returns_none_when_there_are_no_records(self, mocker, subject):
         mocker.patch.object(subject, 'all', lambda: [])
+
         assert subject.find('www') is None
 
     def test_find_returns_none_when_the_record_name_does_not_match(self, mocker, subject):
-        mocker.patch.object(subject, 'all', lambda: [Record(credentials, domain, {'name':'www', 'id':1})])
+        record = Record(credentials, domain, {'name':'www', 'id':1})
+
+        mocker.patch.object(subject, 'all', lambda: [record])
+
         assert subject.find('sub') is None
 
-    def test_find_returns_non_when_the_record_id_does_not_match(self, mocker, subject):
-        mocker.patch.object(subject, 'all', lambda: [Record(credentials, domain, {'name':'www', 'id':2})])
+    def test_find_returns_none_when_the_record_id_does_not_match(self, mocker, subject):
+        response = self.stub_response({'message':'record with ID 1 not found'}, success = False)
+        request  = self.stub_request(subject, mocker, response)
+
+        record = Record(credentials, domain, {'name':'www', 'id':2})
+
+        mocker.patch.object(subject, 'all', lambda: [record])
+
         assert subject.find(1) is None
+
+    def test_find_returns_matching_record_with_numeric_hostname(self, mocker, subject):
+        response = self.stub_response({'message':'record with ID 1 not found'}, success = False)
+        request  = self.stub_request(subject, mocker, response)
+
+        record = Record(credentials, domain, {'name':'1', 'id':2})
+
+        mocker.patch.object(subject, 'all', lambda: [record])
+
+        assert subject.find(1) == record
 
     def test_find_returns_matching_record_by_name(self, mocker, subject):
         record = Record(credentials, domain, {'name':'www', 'id':1})
@@ -90,10 +95,16 @@ class TestRecordCollection:
         assert subject.find('www') == record
 
     def test_find_returns_matching_record_by_id(self, mocker, subject):
-        record = Record(credentials, domain, {'name':'www', 'id':1})
+        response = self.stub_response({'record':{'name':'foo.com', 'id':1}})
+        request  = self.stub_request(subject, mocker, response)
 
-        mocker.patch.object(subject, 'all', lambda: [record])
-        assert subject.find(1) == record
+        record = subject.find(1)
+
+        request.assert_called_once_with('domains/foo.com/records/1')
+
+        assert isinstance(record, dnsimple.record.Record)
+        assert record.name == 'foo.com'
+        assert record.id   == 1
 
     def test_iteration_over_records(self, mocker, subject):
         records = []
@@ -107,17 +118,8 @@ class TestRecordCollection:
         assert records == [record]
 
     def test_add_creates_new_record(self, mocker, subject):
-        response = Response()
-        response.was_successful = lambda: True
-        response.to_dict        = lambda: {'record': {'name':'www'}}
-
-        request = mocker.stub()
-        request.return_value = response
-
-        subject.request = lambda: other
-
-        other = dnsimple.request.Request(credentials)
-        mocker.patch.object(other, 'post', request)
+        response = self.stub_response({'record': {'name':'www'}})
+        request  = self.stub_request(subject, mocker, response, method = 'post')
 
         record = subject.add({'name':'www'})
 
@@ -127,15 +129,7 @@ class TestRecordCollection:
         assert record.name == 'www'
 
     def test_add_returns_none_when_add_is_unsuccessful(self, mocker, subject):
-        response = Response()
-        response.was_successful = lambda: False
-
-        request = mocker.stub()
-        request.return_value = response
-
-        subject.request = lambda: other
-
-        other = dnsimple.request.Request(credentials)
-        mocker.patch.object(other, 'post', request)
+        response = self.stub_response({}, success = False)
+        request  = self.stub_request(subject, mocker, response, method = 'post')
 
         assert subject.add({'name':'www'}) is None
