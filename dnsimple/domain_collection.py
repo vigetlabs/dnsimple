@@ -14,8 +14,7 @@ class DomainCollection(Collection, object):
         response = self.request().get('domains/{0}'.format(id_or_name))
 
         if response.was_successful():
-            data   = response.to_dict()
-            domain = Domain(self.credentials, data.get('domain', {}))
+            domain = Domain(self.credentials, response.to_dict('domain', {}))
 
         return domain
 
@@ -24,8 +23,7 @@ class DomainCollection(Collection, object):
         response = self.request().post('domains', {'domain': attributes})
 
         if response.was_successful():
-            data   = response.to_dict()
-            domain = Domain(self.credentials, data.get('domain', {}))
+            domain = Domain(self.credentials, response.to_dict('domain', {}))
 
         return domain
 

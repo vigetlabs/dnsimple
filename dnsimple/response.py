@@ -6,10 +6,12 @@ class Response:
     def was_successful(self):
         return self.response is not None and self.response.status_code in [200, 201]
 
-    def to_dict(self):
-        data = dict()
+    def to_dict(self, key = None, default = None):
+        data = {}
 
-        if self.was_successful():
+        try:
             data = self.response.json()
+        except AttributeError:
+            pass
 
-        return data
+        return data.get(key, default) if key else data

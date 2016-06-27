@@ -28,8 +28,7 @@ class RecordCollection(Collection, object):
         response = self.request().post('domains/{0}/records'.format(self.domain.name), {'record': attributes})
 
         if response.was_successful():
-            data   = response.to_dict()
-            record = Record(self.credentials, self.domain, data.get('record', {}))
+            record = Record(self.credentials, self.domain, response.to_dict('record', {}))
 
         return record
 
@@ -43,8 +42,7 @@ class RecordCollection(Collection, object):
         response = self.request().get('domains/{0}/records/{1}'.format(self.domain.name, id))
 
         if response.was_successful():
-            data   = response.to_dict()
-            record = Record(self.credentials, self.domain, data.get('record', {}))
+            record = Record(self.credentials, self.domain, response.to_dict('record', {}))
 
         return record
 

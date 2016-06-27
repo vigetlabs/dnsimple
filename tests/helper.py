@@ -1,11 +1,20 @@
 from .context import dnsimple
 
+import requests
+import json
+
 class TestHelper(object):
 
     def stub_response(self, data, success = True):
-        response = dnsimple.response.Response()
-        response.was_successful = lambda: success
-        response.to_dict        = lambda: data
+        raw_response = requests.Response()
+        raw_response.json = lambda: data
+
+        if success:
+            raw_response.status_code = 200
+        else:
+            raw_response.status_code = 404
+
+        response = dnsimple.response.Response(raw_response)
 
         return response
 
