@@ -6,6 +6,9 @@ class Response:
     def was_successful(self):
         return self.response is not None and self.response.status_code in [200, 201]
 
+    def error(self):
+        return self.to_dict('message')
+
     def to_dict(self, key = None, default = None):
         data = {}
 

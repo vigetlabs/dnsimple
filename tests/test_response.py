@@ -24,6 +24,14 @@ class TestResponse:
         subject = Response(self.stub_response())
         assert subject.was_successful() is True
 
+    def test_error_is_none_by_default(self):
+        subject = Response(None)
+        assert subject.error() is None
+
+    def test_error_returns_error_message(self):
+        subject = Response(self.stub_response(data = {'message': 'domain `foo.com` not found'}))
+        assert subject.error() == 'domain `foo.com` not found'
+
     def test_to_dict_is_empty_when_no_response(self):
         subject = Response(None)
         assert subject.to_dict() =={}
