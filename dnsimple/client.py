@@ -1,5 +1,5 @@
-from .credentials import InvalidCredentialsException, Credentials
-from .request import Request
+from .credentials       import InvalidCredentialsException, Credentials
+from .request           import Request
 from .domain_collection import DomainCollection
 
 class Client:
@@ -14,3 +14,6 @@ class Client:
 
     def domains(self):
         return DomainCollection(self.credentials)
+
+    def domain(self, name):
+        return DomainCollection(self.credentials).find(name)

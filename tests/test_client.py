@@ -38,3 +38,18 @@ class TestClient:
 
         assert isinstance(domains, dnsimple.domain_collection.DomainCollection)
         assert domains.credentials == subject.credentials
+
+    def test_domain_returns_single_domain(self, mocker):
+        original_find = dnsimple.domain_collection.DomainCollection.find
+
+        finder = mocker.stub()
+        finder.return_value = 'domain'
+
+        dnsimple.domain_collection.DomainCollection.find = finder
+
+        subject = Client(email = 'user@host.com', password = 'password')
+        assert subject.domain('foo.com') == 'domain'
+
+        finder.assert_called_once_with('foo.com')
+
+        dnsimple.domain_collection.DomainCollection.find = original_find
