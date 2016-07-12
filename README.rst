@@ -21,7 +21,7 @@ To install a bleeding-edge version you can install from the repository:
 Usage
 -----
 
-The ``dnsimple.Client`` class is the entry point for managing your domains.  
+The ``dnsimple.Client`` class is the entry point for managing your domains.
 
 Authentication
 ~~~~~~~~~~~~~~
@@ -39,14 +39,14 @@ Or with a user token:
 
   import dnsimple
   client = dnsimple.Client(email = 'user@host.com', user_token = 'toke')
-  
+
 If you're just testing functionality, you can register a `sandbox account`_ and connect to that instead of the production API endpoint:
 
 .. code-block:: python
 
   import dnsimple
   client = dnsimple.Client(email = 'user@host.com', user_token = 'toke', sandbox = True)
-  
+
 Managing Domains
 ~~~~~~~~~~~~~~~~
 
@@ -63,9 +63,9 @@ Or find an individual domain:
 
 .. code-block:: python
 
-  domain = client.domains().find('foo.com') # find by domain name
-  domain = client.domains().find(1)         # find by ID
-  
+  domain = client.domain('foo.com') # find by domain name
+  domain = client.domain(1)         # find by ID
+
 If you want to register a domain, that is possible as well:
 
 .. code-block:: python
@@ -82,12 +82,12 @@ Once you have found a domain whose records you want to manage, you can get a lis
 
 .. code-block:: python
 
-  domain = client.domains().find('foo.com')
+  domain = client.domain('foo.com')
   for record in domain.records():
     print ' * {0}: "{1}" / "{2}" ({3})'.format(
-      record.record_type, 
-      record.name, 
-      record.content, 
+      record.record_type,
+      record.name,
+      record.content,
       record.id
     )
 
@@ -95,9 +95,9 @@ Or get an individual matching record:
 
 .. code-block:: python
 
-  client.domains().find('foo.com').records().find('www') # find by record name
-  client.domains().find('foo.com').records().find(1)     # find by ID
-    
+  client.domain('foo.com').record('www') # find by record name
+  client.domain('foo.com').record(1)     # find by ID
+
 You can also create a new record:
 
 .. code-block:: python
@@ -113,11 +113,11 @@ And destroy it when you're finished:
 .. code-block:: python
 
   new_record.delete()
-  
+
 License
 -------
 
 Licensed under the `MIT License`_.
-  
+
 .. _sandbox account: https://developer.dnsimple.com/sandbox/
 .. _MIT License: https://opensource.org/licenses/MIT
