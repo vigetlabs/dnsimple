@@ -11,6 +11,12 @@ def credentials():
     return Credentials()
 
 class TestDomain:
+    def setup_method(self, method):
+        self.original_find = dnsimple.record_collection.RecordCollection.find
+
+    def teardown_method(self, method):
+        dnsimple.record_collection.RecordCollection.find = self.original_find
+
     def test_to_dict_returns_attributes(self):
         subject = Domain(credentials, {'key':'value'})
         assert subject.to_dict() == {'key':'value'}
@@ -24,9 +30,31 @@ class TestDomain:
         assert collection.domain      == subject
         assert collection.credentials == credentials
 
-    def test_record_returns_single_record(self, mocker):
-        original_find = dnsimple.record_collection.RecordCollection.find
+        assert collection.name is None
+        assert collection.type is None
 
+    def test_records_filters_on_name(self):
+        subject    = Domain(credentials, {})
+        collection = subject.records('www')
+
+        assert collection.name == 'www'
+        assert collection.type is None
+
+    def test_records_filters_on_blank_name(self):
+        subject    = Domain(credentials, {})
+        collection = subject.records('')
+
+        assert collection.name == ''
+        assert collection.type is None
+
+    def test_records_filters_on_type(self):
+        subject    = Domain(credentials, {})
+        collection = subject.records(type = 'A')
+
+        assert collection.name is None
+        assert collection.type == 'A'
+
+    def test_record_returns_single_record(self, mocker):
         finder = mocker.stub()
         finder.return_value = 'record'
 
@@ -35,6 +63,14 @@ class TestDomain:
         subject = Domain(credentials, {})
         assert subject.record('www') == 'record'
 
-        finder.assert_called_once_with('www')
+        finder.assert_called_once_with('www', None)
 
-        dnsimple.record_collection.RecordCollection.find = original_find
+    def test_record_filters_on_type(self, mocker):
+        finder = mocker.stub()
+
+        dnsimple.record_collection.RecordCollection.find = finder
+
+        subject = Domain(credentials, {})
+        subject.record('', type = 'A')
+
+        finder.assert_called_once_with('', 'A')

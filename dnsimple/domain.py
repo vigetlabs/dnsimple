@@ -3,8 +3,8 @@ from .record_collection import RecordCollection
 
 class Domain(Model, object):
 
-    def records(self):
-        return RecordCollection(self.credentials, self)
+    def records(self, name = None, type = None):
+        return RecordCollection(self.credentials, self, name, type)
 
-    def record(self, name):
-        return RecordCollection(self.credentials, self).find(name)
+    def record(self, name, type = None):
+        return RecordCollection(self.credentials, self).find(name, type)

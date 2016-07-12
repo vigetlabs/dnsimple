@@ -44,11 +44,12 @@ class Request:
 
         return auth
 
-    def get(self, endpoint):
+    def get(self, endpoint, params = {}):
         return self.__handle_request(lambda:
             requests.get(self.request_uri(endpoint),
                 headers = self.headers(),
-                auth    = self.basic_auth()
+                auth    = self.basic_auth(),
+                params  = params
             )
         )
 

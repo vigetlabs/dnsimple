@@ -1,16 +1,30 @@
 from .collection import Collection
 from .record     import Record
 
+class MultipleResultsException(Exception):
+    pass
+
 class RecordCollection(Collection, object):
 
-    def __init__(self, credentials, domain):
+    def __init__(self, credentials, domain, name = None, type = None):
         self.credentials = credentials
         self.domain      = domain
+        self.name        = name
+        self.type        = type
 
     def all(self):
-        return map(lambda a: Record(self.credentials, self.domain, a), self.to_dict())
+        uri      = 'domains/{0}/records'.format(self.domain.name)
+        response = self.request().get(uri, self.__filter_params())
 
-    def find(self, id_or_name):
+        return map(
+            lambda el: Record(self.credentials, self.domain, el['record']),
+            response.to_dict(default = [])
+        )
+
+    def where(self, name = None, type = None):
+        return self.__class__(self.credentials, self.domain, name, type)
+
+    def find(self, id_or_name, type = None):
         record = None
 
         try:
@@ -19,7 +33,7 @@ class RecordCollection(Collection, object):
             record = None
 
         if record is None:
-            record = self.__find_by_name(str(id_or_name))
+            record = self.__find_by_name(str(id_or_name), type)
 
         return record
 
@@ -33,9 +47,18 @@ class RecordCollection(Collection, object):
         return record
 
     def to_dict(self):
-        response = self.request().get('domains/{0}/records'.format(self.domain.name))
+        return map(lambda r: r.to_dict(), self.all())
 
-        return map(lambda el: el['record'], response.to_dict())
+    def __filter_params(self):
+        params = {}
+
+        if self.name is not None:
+            params.update({'name': self.name})
+
+        if self.type:
+            params.update({'type': self.type})
+
+        return params
 
     def __find_by_id(self, id):
         record   = None
@@ -46,8 +69,13 @@ class RecordCollection(Collection, object):
 
         return record
 
-    def __find_by_name(self, name):
-        return next(
-            (r for r in self.all() if r.name == name),
-            None
-        )
+    def __find_by_name(self, name, type = None):
+        record  = None
+        results = self.where(name, type).all()
+
+        if len(results) > 1:
+            raise MultipleResultsException("Multiple results returned for query")
+        elif len(results) == 1:
+            record = results[0]
+
+        return record

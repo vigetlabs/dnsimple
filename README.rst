@@ -91,12 +91,47 @@ Once you have found a domain whose records you want to manage, you can get a lis
       record.id
     )
 
-Or get an individual matching record:
+You can further filter records by type:
+
+.. code-block:: python
+
+  for nameserver in domain.records(type = 'NS'):
+      print ' * "{0}" ({1})'.format(nameserver.content, nameserver.id)
+
+Or name:
+
+.. code-block:: python
+
+  for blank in domain.records(name = ''):
+      print ' * {0}: "{1}" ({2})'.format(blank.record_type, blank.content, blank.id)
+
+Or both type and name:
+
+.. code-block:: python
+
+  for a in domain.records(name = '', type = 'A'):
+      print ' * {0}: "{1}" ({2})'.format(a.record_type, a.content, a.id)
+
+If you want to fetch a single record, you can grab it via name or ID:
 
 .. code-block:: python
 
   client.domain('foo.com').record('www') # find by record name
   client.domain('foo.com').record(1)     # find by ID
+
+And further filter by type if necessary:
+
+.. code-block:: python
+
+  root = domain.record('', type = 'A')
+  print ' * {0}: "{1}" ({2})'.format(root.record_type, root.content, root.id)
+
+If the query results in an ambiguous match, an exception will be raised:
+
+.. code-block:: python
+
+  domain.record('', type = 'NS')
+  >> dnsimple.record_collection.MultipleResultsException: Multiple results returned for query
 
 You can also create a new record:
 

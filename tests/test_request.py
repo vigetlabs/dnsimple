@@ -71,11 +71,26 @@ class TestRequest:
 
         get.assert_called_once_with('https://api.dnsimple.com/v1/domains',
             headers = {'Accept': 'application/json', 'Content-Type': 'application/json', 'X-DNSimple-Token': 'user@host.com:toke'},
-            auth    = ()
+            auth    = (),
+            params  = {}
         )
 
         assert isinstance(response, dnsimple.response.Response)
         assert response.response == 'response'
+
+    def test_get_passes_params_to_request(self, token_credentials, mocker):
+        subject = Request(token_credentials)
+        get     = mocker.stub()
+
+        mocker.patch('requests.get', get)
+
+        response = subject.get('domains', {'key':'value'})
+
+        get.assert_called_once_with('https://api.dnsimple.com/v1/domains',
+            headers = {'Accept': 'application/json', 'Content-Type': 'application/json', 'X-DNSimple-Token': 'user@host.com:toke'},
+            auth    = (),
+            params  = {'key':'value'}
+        )
 
     def test_get_returns_empty_response_on_failure(self, token_credentials, mocker):
         subject = Request(token_credentials)

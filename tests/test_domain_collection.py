@@ -24,33 +24,41 @@ class TestDomainCollection(TestHelper, object):
         assert isinstance(request, dnsimple.request.Request)
         assert request.credentials == credentials
 
-    def test_to_dict_returns_condensed_attribute_collection_on_success(self, mocker, subject, credentials):
-        response = self.stub_response([{'domain': {'name':'foo.com'}}])
+    def test_all_returns_empty_collection_when_no_domains(self, mocker, subject):
+        response = self.stub_response([])
         request  = self.stub_request(subject, mocker, response)
 
-        result = subject.to_dict()
+        domains = subject.all()
 
         request.assert_called_once_with('domains')
 
-        assert result == [{'name':'foo.com'}]
-
-    def test_to_dict_returns_empty_array_on_failure(self, mocker, subject, credentials):
-        response = self.stub_response({}, success = False)
-        request  = self.stub_request(subject, mocker, response)
-
-        assert subject.to_dict() == []
-
-    def test_all_returns_empty_collection_when_no_domains(self, mocker, subject):
-        mocker.patch.object(subject, 'to_dict', lambda: [])
-        assert len(subject.all()) == 0
+        assert domains == []
 
     def test_all_returns_collection_of_domains(self, mocker, subject):
-        mocker.patch.object(subject, 'to_dict', lambda: [{'name':'foo.com'}])
+        response = self.stub_response([{'domain': {'name': 'foo.com'}}])
+        request  = self.stub_request(subject, mocker, response)
 
         domains = subject.all()
 
         assert len(domains) == 1
-        assert isinstance(domains[0], dnsimple.domain.Domain)
+
+        domain = domains[0]
+
+        assert isinstance(domain, dnsimple.domain.Domain)
+        assert domain.name == 'foo.com'
+
+    def test_to_dict_returns_empty_list_when_no_domains(self, mocker, subject):
+        mocker.patch.object(subject, 'all', lambda: [])
+
+        assert subject.to_dict() == []
+
+    def test_to_dict_returns_attributes_for_all_domains(self, mocker, subject, credentials):
+        domain_1 = Domain(credentials, {'name': 'one.com'})
+        domain_2 = Domain(credentials, {'name': 'two.com'})
+
+        mocker.patch.object(subject, 'all', lambda: [domain_1, domain_2])
+
+        assert subject.to_dict() == [{'name':'one.com'}, {'name':'two.com'}]
 
     def test_find_by_name_returns_none_when_the_domain_does_not_exist(self, mocker, subject):
         response = self.stub_response({'message':'domain foo.com not found'}, success = False)
