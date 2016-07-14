@@ -8,3 +8,7 @@ class Domain(Model, object):
 
     def record(self, name, type = None):
         return RecordCollection(self.credentials, self).find(name, type)
+
+    def delete(self):
+        response = self.request().delete('domains/{0}'.format(self.name))
+        return response.was_successful()

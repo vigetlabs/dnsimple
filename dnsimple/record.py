@@ -1,5 +1,4 @@
 from .model   import Model
-from .request import Request
 
 class Record(Model, object):
 
@@ -11,6 +10,3 @@ class Record(Model, object):
     def delete(self):
         response = self.request().delete('domains/{0}/records/{1}'.format(self.domain.name, self.id))
         return response.was_successful()
-
-    def request(self):
-        return Request(self.credentials)

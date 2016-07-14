@@ -1,3 +1,5 @@
+from .request import Request
+
 class Model(object):
     def __init__(self, credentials, attributes):
         self.credentials = credentials
@@ -8,3 +10,6 @@ class Model(object):
 
     def to_dict(self):
         return self.attributes
+
+    def request(self):
+        return Request(self.credentials)
