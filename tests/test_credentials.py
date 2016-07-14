@@ -3,6 +3,22 @@ from .context import dnsimple
 from dnsimple.credentials import Credentials
 
 class TestCredentials:
+    def test_is_blank_is_true_by_default(self):
+        subject = Credentials()
+        assert subject.is_blank()
+
+    def test_is_blank_is_false_when_email_provided(self):
+        subject = Credentials(email = 'user@host.com')
+        assert not subject.is_blank()
+
+    def test_is_blank_is_false_when_user_token_provided(self):
+        subject = Credentials(user_token = 'toke')
+        assert not subject.is_blank()
+
+    def test_is_blank_is_false_when_password_provided(self):
+        subject = Credentials(password = 'password')
+        assert not subject.is_blank()
+
     def test_is_valid_is_false_by_default(self):
         subject = Credentials()
         assert subject.is_valid() is False

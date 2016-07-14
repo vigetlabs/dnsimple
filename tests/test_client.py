@@ -1,6 +1,6 @@
 import pytest
 
-from .context import dnsimple
+from .context import dnsimple, fixture_path
 
 from dnsimple.client import Client
 
@@ -23,6 +23,13 @@ class TestClient:
 
         assert subject.credentials.email    == 'user@host.com'
         assert subject.credentials.password == 'password'
+
+    def test_constructor_configures_credentials_from_configuration_file(self):
+        subject = Client(credentials_search_paths = [fixture_path('credentials')], credentials_filename = 'basic')
+
+        assert subject.credentials.email      == 'user@host.com'
+        assert subject.credentials.user_token == 'token'
+        assert subject.credentials.password   == 'password'
 
     def test_constructor_defaults_sandbox_to_false(self):
         subject = Client(email = 'user@host.com', password = 'password')

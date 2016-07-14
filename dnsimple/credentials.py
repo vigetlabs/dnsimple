@@ -7,6 +7,14 @@ class Credentials:
         self.user_token   = user_token
         self.password     = password
 
+    def is_blank(self):
+        blank = True
+        blank = blank and self.email      is None
+        blank = blank and self.user_token is None
+        blank = blank and self.password   is None
+
+        return blank
+
     def is_valid(self):
         valid = False
         valid = bool(self.email and self.user_token)
