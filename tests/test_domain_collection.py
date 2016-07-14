@@ -4,8 +4,6 @@ from .context import dnsimple
 from .helper  import TestHelper
 
 from dnsimple.domain_collection import DomainCollection
-from dnsimple.credentials       import Credentials
-from dnsimple.response          import Response
 from dnsimple.domain            import Domain
 
 @pytest.fixture
