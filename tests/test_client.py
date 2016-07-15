@@ -12,6 +12,10 @@ class TestClient:
 
         assert 'Invalid credentials supplied' in str(ex.value)
 
+    def test_constructor_raises_errors_when_no_credentials_found(self):
+        with pytest.raises(dnsimple.credentials.InvalidCredentialsException):
+            Client(credentials_search_paths = fixture_path('credentials'), credentials_filename = 'missing')
+
     def test_constructor_configures_credentials_for_token_authentication(self):
         subject = Client(email = 'user@host.com', user_token = 'toke')
 

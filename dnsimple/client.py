@@ -18,7 +18,7 @@ class Client:
         if self.credentials.is_blank():
             self.credentials = CredentialsSearch(credentials_search_paths, credentials_filename).first()
 
-        if not self.credentials.is_valid():
+        if self.credentials is None or not self.credentials.is_valid():
             raise InvalidCredentialsException("Invalid credentials supplied")
 
         Request.sandbox = sandbox
