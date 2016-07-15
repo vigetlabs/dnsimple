@@ -1,7 +1,7 @@
 import pytest
 
-from .context import dnsimple
-from .helper  import TestHelper
+from ..context import dnsimple
+from ..helper  import TestHelper
 
 from dnsimple.domain_collection import DomainCollection
 from dnsimple.domain            import Domain

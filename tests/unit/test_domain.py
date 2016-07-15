@@ -1,6 +1,6 @@
 import pytest
 
-from .context import dnsimple
+from ..context import dnsimple
 
 from dnsimple.domain            import Domain
 from dnsimple.credentials       import Credentials

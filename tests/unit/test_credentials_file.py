@@ -1,4 +1,4 @@
-from .context import dnsimple, fixture_path
+from ..context import dnsimple, fixture_path
 
 from dnsimple.credentials_file import CredentialsFile
 

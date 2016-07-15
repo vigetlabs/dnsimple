@@ -1,4 +1,4 @@
-from .context import dnsimple
+from ..context import dnsimple
 
 from dnsimple.credentials import Credentials
 

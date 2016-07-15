@@ -1,6 +1,6 @@
 import requests.models
 
-from .context import dnsimple
+from ..context import dnsimple
 
 from dnsimple.response import Response
 

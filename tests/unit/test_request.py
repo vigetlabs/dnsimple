@@ -1,7 +1,7 @@
 import requests
 from requests.exceptions import ConnectionError
 
-from .context import dnsimple
+from ..context import dnsimple
 
 from dnsimple.request     import Request
 from dnsimple.credentials import Credentials

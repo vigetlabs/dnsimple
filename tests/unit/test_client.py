@@ -1,6 +1,6 @@
 import pytest
 
-from .context import dnsimple, fixture_path
+from ..context import dnsimple, fixture_path
 
 from dnsimple.client import Client
 
