@@ -9,10 +9,10 @@ class DomainCollection(Collection, object):
     def all(self):
         response = self.request().get('domains')
 
-        return map(
-            lambda el: Domain(self.credentials, el['domain']),
-            response.to_dict(default = [])
-        )
+        return [
+            Domain(self.credentials, el['domain'])
+            for el in response.to_dict(default = [])
+        ]
 
     def find(self, id_or_name):
         domain   = None
@@ -33,4 +33,4 @@ class DomainCollection(Collection, object):
         return domain
 
     def to_dict(self):
-        return map(lambda d: d.to_dict(), self.all())
+        return [d.to_dict() for d in self.all()]

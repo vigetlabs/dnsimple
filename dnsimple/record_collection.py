@@ -16,10 +16,10 @@ class RecordCollection(Collection, object):
         uri      = 'domains/{0}/records'.format(self.domain.name)
         response = self.request().get(uri, self.__filter_params())
 
-        return map(
-            lambda el: Record(self.credentials, self.domain, el['record']),
-            response.to_dict(default = [])
-        )
+        return [
+            Record(self.credentials, self.domain, el['record'])
+            for el in response.to_dict(default = [])
+        ]
 
     def where(self, name = None, type = None):
         return self.__class__(self.credentials, self.domain, name, type)
@@ -47,7 +47,7 @@ class RecordCollection(Collection, object):
         return record
 
     def to_dict(self):
-        return map(lambda r: r.to_dict(), self.all())
+        return [r.to_dict() for r in self.all()]
 
     def __filter_params(self):
         params = {}
