@@ -8,3 +8,5 @@ integration:
 
 test:
 	py.test tests/unit
+
+.PHONY: init integration test
