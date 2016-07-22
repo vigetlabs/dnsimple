@@ -62,6 +62,15 @@ class Request:
             )
         )
 
+    def put(self, endpoint, data):
+        return self.__handle_request(lambda:
+            requests.put(self.request_uri(endpoint),
+                headers = self.headers(),
+                auth    = self.basic_auth(),
+                data    = json.dumps(data)
+            )
+        )
+
     def delete(self, endpoint):
         return self.__handle_request(lambda:
             requests.delete(self.request_uri(endpoint),

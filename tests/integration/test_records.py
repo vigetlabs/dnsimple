@@ -19,7 +19,6 @@ class TestRecords:
 
         assert counter == 5
 
-
     def test_filtering_records(self, domain):
         # Filter to only 'NS' records
         assert [r.record_type for r in domain.records(type = 'NS' )] == ['NS', 'NS', 'NS', 'NS']
@@ -45,6 +44,20 @@ class TestRecords:
         # Create a CNAME record
         cname = domain.records().add({'name':'www', 'record_type': 'CNAME', 'content': domain.name})
         assert cname
+
+    def test_updating_records(self, domain):
+        record = domain.records().add({'name': 'old', 'record_type': 'A', 'content': '192.168.1.3'})
+        assert record
+
+        assert record.update({'name': 'new'})
+
+        record = domain.record('new')
+        assert record
+
+        # Empty update should fail
+        assert not record.update({})
+
+        record.delete()
 
     def test_finding_records(self, domain):
         # Ensure created records can be retrieved

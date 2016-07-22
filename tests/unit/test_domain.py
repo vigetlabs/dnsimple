@@ -21,6 +21,12 @@ class TestDomain:
     def teardown_method(self, method):
         dnsimple.record_collection.RecordCollection.find = self.original_find
 
+    def test_assign_assigns_attributes(self, credentials):
+        subject = Domain(credentials, {})
+        subject.assign({'name': 'foo.com'})
+
+        assert subject.name == 'foo.com'
+
     def test_to_dict_returns_attributes(self):
         subject = Domain(credentials, {'key':'value'})
         assert subject.to_dict() == {'key':'value'}
