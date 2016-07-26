@@ -15,6 +15,6 @@ setup(
     description      = 'Library to manage domains and DNS records with DNSimple',
     long_description = readme,
     packages         = find_packages(exclude=('tests', 'circle.yml')),
-    install_requires = ['requests'],
+    install_requires = ['requests>=2.10.0,<2.11.0'],
     license           = 'MIT'
 )
