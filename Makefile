@@ -1,14 +1,22 @@
 .DEFAULT_GOAL := test
 
-init:
-	pip install -r requirements.txt
+env: env/bin/activate
 
-integration:
-	py.test -s tests/integration/test_domains.py tests/integration/test_records.py
+env/bin/activate: requirements.txt
+	test -d env || virtualenv env;	\
+  ./env/bin/pip install -r requirements.txt --upgrade;	\
 
-test:
-	py.test tests/unit
+dnsimple.egg-info/SOURCES.txt: env
+	./env/bin/python setup.py develop
+
+dev: dnsimple.egg-info/SOURCES.txt
+
+integration: dev
+	./env/bin/py.test -s tests/integration/test_{domains,records}.py
+
+test: dev
+	./env/bin/py.test tests/unit
 
 all: test integration
 
-.PHONY: init integration test all
+.PHONY: dev integration test all
