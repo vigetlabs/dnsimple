@@ -7,10 +7,9 @@ from .response import Response
 
 class Request:
 
-    sandbox = False
-
-    def __init__(self, credentials):
+    def __init__(self, credentials, sandbox = False):
         self.credentials     = credentials
+        self.sandbox         = sandbox
         self.default_headers = {
             'Accept':       'application/json',
             'Content-Type': 'application/json'

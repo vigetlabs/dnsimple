@@ -1,79 +1,69 @@
 import pytest
 
-from ..context import dnsimple
-from ..helper  import TestHelper
+from ..context         import dnsimple
+from ..request_helper  import RequestHelper
 
-from dnsimple.record      import Record
-from dnsimple.credentials import Credentials
-from dnsimple.domain      import Domain
-
-@pytest.fixture
-def credentials():
-    return Credentials()
+from dnsimple.record import Record
+from dnsimple.domain import Domain
 
 @pytest.fixture
-def domain(credentials):
-    return Domain(credentials, {'name':'foo.com'})
+def request():
+    return dnsimple.request.Request(dnsimple.credentials.Credentials())
 
 @pytest.fixture
-def subject(credentials, domain):
-    return Record(credentials, domain, {'id':1})
+def domain(request):
+    return Domain(request, {'name':'foo.com'})
 
-class TestRecord(TestHelper, object):
-    def test_assign_assigns_attributes(self, credentials, domain):
-        subject = Record(credentials, domain, {})
+@pytest.fixture
+def subject(request, domain):
+    return Record(request, domain, {'id': 1})
+
+class TestRecord(RequestHelper, object):
+    def test_assign_assigns_attributes(self, subject):
         subject.assign({'name': 'www'})
 
         assert subject.name == 'www'
 
-    def test_request_creates_request_with_credentials(self, subject, credentials):
-        request = subject.request()
-
-        assert isinstance(request, dnsimple.request.Request)
-        assert request.credentials == credentials
-
-    def test_update_sends_update_request(self, mocker, subject):
-        response = self.stub_response({})
-        request  = self.stub_request(subject, mocker, response, 'put')
+    def test_update_sends_update_request(self, mocker, request, domain):
+        method  = self.stub_request(mocker, request, method_name = 'put', data = {})
+        subject = Record(request, domain, {'name': 'www', 'id': 1})
 
         result = subject.update({'name':'other'})
 
-        request.assert_called_once_with('domains/foo.com/records/1', {'record': {'name':'other'}})
+        method.assert_called_once_with('domains/foo.com/records/1', {'record': {'name':'other'}})
 
         assert result is True
 
-    def test_update_returns_false_when_request_fails(self, mocker, subject):
-        response = self.stub_response({}, False)
-        request  = self.stub_request(subject, mocker, response, 'put')
+    def test_update_returns_false_when_request_fails(self, mocker, request, domain):
+        method  = self.stub_request(mocker, request, method_name = 'put', success = False, data = {})
+        subject = Record(request, domain, {'name': 'www', 'id': 1})
 
         assert subject.update({}) is False
 
-    def test_update_assigns_attributes(self, mocker, subject):
-        response = self.stub_response({})
-        request  = self.stub_request(subject, mocker, response, 'put')
-
-        subject.name = 'www'
+    def test_update_assigns_attributes(self, mocker, request, domain):
+        method  = self.stub_request(mocker, request, method_name = 'put', data = {})
+        subject = Record(request, domain, {'name': 'www', 'id': 1})
 
         subject.update({'name':'other'})
 
         assert subject.name == 'other'
 
-    def test_delete_removes_record_from_domain(self, mocker, subject):
-        response = self.stub_response({})
-        request  = self.stub_request(subject, mocker, response, 'delete')
+    def test_delete_removes_record_from_domain(self, mocker, request, domain):
+        method  = self.stub_request(mocker, request, method_name = 'delete', data = {})
+        subject = Record(request, domain, {'name': 'www', 'id': 1})
 
         result = subject.delete()
 
-        request.assert_called_once_with('domains/foo.com/records/1')
+        method.assert_called_once_with('domains/foo.com/records/1')
 
         assert result is True
 
-    def test_delete_returns_false_when_removal_fails(self, mocker, subject):
-        response = self.stub_response(None, False)
-        request  = self.stub_request(subject, mocker, response, 'delete')
+    def test_delete_returns_false_when_removal_fails(self, mocker, request, domain):
+        method  = self.stub_request(mocker, request, method_name = 'delete', success = False)
+        subject = Record(request, domain, {'name': 'www', 'id': 1})
 
         assert subject.delete() is False
 
-    def test_to_dict_returns_attributes(self, credentials, domain):
-        subject = Record(credentials, domain, {'key':'value'})
+    def test_to_dict_returns_attributes(self, request, domain):
+        subject = Record(request, domain, {'key':'value'})
         assert subject.to_dict() == {'key':'value'}

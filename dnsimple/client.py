@@ -13,18 +13,18 @@ class Client:
         credentials_search_paths = ['.', '~'],
         credentials_filename     = '.dnsimple'
     ):
-        self.credentials = Credentials(email, user_token, password)
+        credentials = Credentials(email, user_token, password)
 
-        if self.credentials.is_blank():
-            self.credentials = CredentialsSearch(credentials_search_paths, credentials_filename).first()
+        if credentials.is_blank():
+            credentials = CredentialsSearch(credentials_search_paths, credentials_filename).first()
 
-        if self.credentials is None or not self.credentials.is_valid():
+        if credentials is None or not credentials.is_valid():
             raise InvalidCredentialsException("Invalid credentials supplied")
 
-        Request.sandbox = sandbox
+        self.request = Request(credentials, sandbox)
 
     def domains(self):
-        return DomainCollection(self.credentials)
+        return DomainCollection(self.request)
 
     def domain(self, name):
-        return DomainCollection(self.credentials).find(name)
+        return DomainCollection(self.request).find(name)

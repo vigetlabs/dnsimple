@@ -1,6 +1,6 @@
 from ..context import dnsimple, fixture_path
 
-from dnsimple.credentials import Credentials
+from dnsimple.credentials        import Credentials
 from dnsimple.credentials_search import CredentialsSearch
 
 class TestCredentialsSearch:

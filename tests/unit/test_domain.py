@@ -1,43 +1,42 @@
 import pytest
 
-from ..context import dnsimple
+from ..context         import dnsimple
+from ..request_helper  import RequestHelper
 
 from dnsimple.domain            import Domain
-from dnsimple.credentials       import Credentials
 from dnsimple.record_collection import RecordCollection
 
 @pytest.fixture
-def credentials():
-    return Credentials()
+def request():
+    return dnsimple.request.Request(dnsimple.credentials.Credentials())
 
 @pytest.fixture
-def subject():
-    return Domain(credentials, {'name':'example.com'})
+def subject(request):
+    return Domain(request, {'name':'example.com'})
 
-class TestDomain:
+class TestDomain(RequestHelper, object):
+
     def setup_method(self, method):
         self.original_find = dnsimple.record_collection.RecordCollection.find
 
     def teardown_method(self, method):
         dnsimple.record_collection.RecordCollection.find = self.original_find
 
-    def test_assign_assigns_attributes(self, credentials):
-        subject = Domain(credentials, {})
+    def test_assign_assigns_attributes(self, subject):
         subject.assign({'name': 'foo.com'})
 
         assert subject.name == 'foo.com'
 
-    def test_to_dict_returns_attributes(self):
-        subject = Domain(credentials, {'key':'value'})
-        assert subject.to_dict() == {'key':'value'}
+    def test_to_dict_returns_attributes(self, subject):
+        assert subject.to_dict() == {'name':'example.com'}
 
-    def test_records_creates_instance_of_collection(self, subject):
+    def test_records_creates_instance_of_collection(self,  request, subject):
         collection = subject.records()
 
         assert isinstance(collection, RecordCollection)
 
-        assert collection.domain      == subject
-        assert collection.credentials == credentials
+        assert collection.request == request
+        assert collection.domain  == subject
 
         assert collection.name is None
         assert collection.type is None
@@ -60,7 +59,7 @@ class TestDomain:
         assert collection.name is None
         assert collection.type == 'A'
 
-    def test_record_returns_single_record(self, mocker, subject):
+    def test_record_invokes_finder_with_name(self, mocker, subject):
         finder = mocker.stub()
         finder.return_value = 'record'
 
@@ -70,7 +69,7 @@ class TestDomain:
 
         finder.assert_called_once_with('www', None)
 
-    def test_record_filters_on_type(self, mocker, subject):
+    def test_record_invokes_finder_with_name_and_on_type(self, mocker, subject):
         finder = mocker.stub()
 
         dnsimple.record_collection.RecordCollection.find = finder
@@ -79,35 +78,16 @@ class TestDomain:
 
         finder.assert_called_once_with('', 'A')
 
-    def test_delete_removes_domain(self, mocker, subject):
-        response = dnsimple.response.Response()
-        response.was_successful = lambda: True
+    def test_delete_removes_domain(self, mocker, request):
+        method  = self.stub_request(mocker, request, method_name = 'delete')
+        subject = Domain(request, {'name':'example.com'})
 
-        request = mocker.stub()
-        request.return_value = response
+        assert subject.delete() is True
 
-        subject.request = lambda: other
+        method.assert_called_once_with('domains/example.com')
 
-        other = dnsimple.request.Request(credentials)
-        mocker.patch.object(other, 'delete', request)
-
-        result = subject.delete()
-
-        request.assert_called_once_with('domains/example.com')
-
-        assert result is True
-
-    def test_delete_returns_false_when_removal_fails(self, mocker, subject):
-        response = dnsimple.response.Response()
-        response.was_successful = lambda: False
-
-        request = mocker.stub()
-        request.return_value = response
-
-        subject.request = lambda: other
-
-        other = dnsimple.request.Request(credentials)
-        mocker.patch.object(other, 'delete', request)
+    def test_delete_returns_false_when_removal_fails(self, mocker, request):
+        method  = self.stub_request(mocker, request, method_name = 'delete', success = False)
+        subject = Domain(request, {'name':'example.com'})
 
         assert subject.delete() is False
-

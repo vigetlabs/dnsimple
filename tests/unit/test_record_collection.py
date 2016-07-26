@@ -1,102 +1,89 @@
 import pytest
 
-from ..context import dnsimple
-from ..helper  import TestHelper
+from ..context         import dnsimple
+from ..request_helper  import RequestHelper
 
-from dnsimple.credentials       import Credentials
 from dnsimple.domain            import Domain
 from dnsimple.record            import Record
-from dnsimple.response          import Response
 from dnsimple.record_collection import RecordCollection
 
 @pytest.fixture
-def credentials():
-    return Credentials()
+def request():
+    return dnsimple.request.Request(dnsimple.credentials.Credentials())
 
 @pytest.fixture
-def domain(credentials):
-    return Domain(credentials, {'name':'foo.com'})
+def domain(request):
+    return Domain(request, {'name':'foo.com'})
 
 @pytest.fixture
-def subject(credentials, domain):
-    return RecordCollection(credentials, domain)
+def subject(request, domain):
+    return RecordCollection(request, domain)
 
-class TestRecordCollection(TestHelper, object):
+class TestRecordCollection(RequestHelper, object):
 
-    def stub_filter(self, mocker, return_value):
-        credentials = Credentials()
-        domain      = Domain(credentials, {})
+    def stub_filter(self, mocker, subject, return_value):
+        request      = dnsimple.request.Request(dnsimple.credentials.Credentials())
+        domain       = Domain(request, {})
+        filtered     = RecordCollection(request, domain)
+        finder       = mocker.stub()
+        where_filter = mocker.stub()
 
-        finder = mocker.stub()
         finder.return_value = return_value
 
-        filtered = RecordCollection(credentials, domain)
         mocker.patch.object(filtered, 'all', finder)
 
-        where_filter = mocker.stub()
         where_filter.return_value = filtered
+
+        mocker.patch.object(subject, 'where', where_filter)
 
         return where_filter
 
-    def test_request_creates_request_with_credentials(self, subject, credentials):
-        request = subject.request()
-
-        assert isinstance(request, dnsimple.request.Request)
-        assert request.credentials == credentials
-
-    def test_all_returns_empty_collection_when_no_records(self, mocker, subject):
-        response = self.stub_response([])
-        request  = self.stub_request(subject, mocker, response)
+    def test_all_returns_empty_collection_when_no_records(self, mocker, request, domain):
+        method  = self.stub_request(mocker, request, method_name = 'get', data = [])
+        subject = RecordCollection(request, domain)
 
         records = subject.all()
 
-        request.assert_called_once_with('domains/foo.com/records', {})
+        method.assert_called_once_with('domains/foo.com/records', {})
 
         assert records == []
 
-    def test_all_filters_results_by_name(self, mocker, credentials, domain):
-        subject = RecordCollection(credentials, domain, 'www')
-
-        response = self.stub_response([])
-        request  = self.stub_request(subject, mocker, response)
+    def test_all_filters_results_by_name(self, mocker, request, domain):
+        method  = self.stub_request(mocker, request, method_name = 'get', data = [])
+        subject = RecordCollection(request, domain, 'www')
 
         subject.all()
 
-        request.assert_called_once_with('domains/foo.com/records', {'name':'www'})
+        method.assert_called_once_with('domains/foo.com/records', {'name':'www'})
 
-    def test_all_filters_results_by_empty_name(self, mocker, credentials, domain):
-        subject = RecordCollection(credentials, domain, '')
-
-        response = self.stub_response([])
-        request  = self.stub_request(subject, mocker, response)
+    def test_all_filters_results_by_empty_name(self, mocker, request, domain):
+        method  = self.stub_request(mocker, request, method_name = 'get', data = [])
+        subject = RecordCollection(request, domain, '')
 
         subject.all()
 
-        request.assert_called_once_with('domains/foo.com/records', {'name':''})
+        method.assert_called_once_with('domains/foo.com/records', {'name':''})
 
-    def test_all_filters_results_by_type(self, mocker, credentials, domain):
-        subject = RecordCollection(credentials, domain, type = 'NS')
-
-        response = self.stub_response([])
-        request  = self.stub_request(subject, mocker, response)
+    def test_all_filters_results_by_type(self, mocker, request, domain):
+        method  = self.stub_request(mocker, request, method_name = 'get', data = [])
+        subject = RecordCollection(request, domain, type = 'NS')
 
         subject.all()
 
-        request.assert_called_once_with('domains/foo.com/records', {'type':'NS'})
+        method.assert_called_once_with('domains/foo.com/records', {'type':'NS'})
 
-    def test_all_filters_results_by_name_and_type(self, mocker, credentials, domain):
-        subject = RecordCollection(credentials, domain, 'www', type = 'A')
-
-        response = self.stub_response([])
-        request  = self.stub_request(subject, mocker, response)
+    def test_all_filters_results_by_name_and_type(self, mocker, request, domain):
+        method  = self.stub_request(mocker, request, method_name = 'get', data = [])
+        subject = RecordCollection(request, domain, 'www', type = 'A')
 
         subject.all()
 
-        request.assert_called_once_with('domains/foo.com/records', {'name':'www','type':'A'})
+        method.assert_called_once_with('domains/foo.com/records', {'name':'www','type':'A'})
 
-    def test_all_returns_collection_of_records(self, mocker, subject):
-        response = self.stub_response([{'record':{'name':'www'}}])
-        request  = self.stub_request(subject, mocker, response)
+    def test_all_returns_collection_of_records(self, mocker, request, domain):
+        self.stub_request(mocker, request, method_name = 'get', data = [{'record':{'name':'www'}}])
+
+        subject = RecordCollection(request, domain)
 
         records = subject.all()
 
@@ -121,73 +108,70 @@ class TestRecordCollection(TestHelper, object):
         mocker.patch.object(subject, 'all', lambda: [])
         assert subject.to_dict() == []
 
-    def test_to_dict_returns_attributes_for_all_records(self, mocker, subject, domain, credentials):
-        record_1 = Record(credentials, domain, {'name':'one'})
-        record_2 = Record(credentials, domain, {'name':'two'})
+    def test_to_dict_returns_attributes_for_all_records(self, mocker, domain, request, subject):
+        record_1 = Record(request, domain, {'name':'one'})
+        record_2 = Record(request, domain, {'name':'two'})
 
         mocker.patch.object(subject, 'all', lambda: [record_1, record_2])
 
         assert subject.to_dict() == [{'name':'one'},{'name':'two'}]
 
-    def test_find_returns_none_when_the_record_id_does_not_match(self, mocker, subject, credentials, domain):
-        response = self.stub_response({'message':'record with ID 1 not found'}, success = False)
-        request  = self.stub_request(subject, mocker, response)
+    def test_find_returns_none_when_the_record_id_does_not_match(self, mocker, request, domain):
+        self.stub_request(mocker, request, method_name = 'get', success = False, data = {'message':'record with ID 1 not found'})
 
-        where_filter = self.stub_filter(mocker, [])
-        mocker.patch.object(subject, 'where', where_filter)
+        subject = RecordCollection(request, domain)
+
+        where_filter = self.stub_filter(mocker, subject, [])
 
         assert subject.find(1) is None
 
         where_filter.assert_called_once_with('1', None)
 
     def test_find_returns_matching_record_by_name(self, mocker, subject):
-        record = Record(credentials, domain, {'name':'www', 'id':1})
+        record = Record(request, domain, {'name':'www', 'id': 1})
 
-        where_filter = self.stub_filter(mocker, [record])
-        mocker.patch.object(subject, 'where', where_filter)
+        self.stub_filter(mocker, subject, [record])
 
         assert subject.find('www') == record
 
-    def test_find_raises_exception_when_multiple_results_found(self, mocker, subject):
+    def test_find_raises_exception_when_multiple_results_found(self, mocker, request, domain, subject):
         records = [
-            Record(credentials, domain, {'name':'', 'id':1}),
-            Record(credentials, domain, {'name':'', 'id':1})
+            Record(request, domain, {'name':'', 'id': 1}),
+            Record(request, domain, {'name':'', 'id': 2})
         ]
 
-        where_filter = self.stub_filter(mocker, records)
-        mocker.patch.object(subject, 'where', where_filter)
+        where_filter = self.stub_filter(mocker, subject, records)
 
         with pytest.raises(dnsimple.record_collection.MultipleResultsException) as ex:
             subject.find('www')
 
         assert 'Multiple results returned for query' in str(ex.value)
 
-    def test_find_returns_matching_record_with_numeric_hostname(self, mocker, subject):
-        record = Record(credentials, domain, {'name':'1', 'id':2})
+    def test_find_returns_matching_record_with_numeric_hostname(self, mocker, request, domain):
+        self.stub_request(mocker, request, method_name = 'get', success = False, data = {'message':'record with ID 1 not found'})
 
-        response = self.stub_response({'message':'record with ID 1 not found'}, success = False)
-        request  = self.stub_request(subject, mocker, response)
+        record  = Record(request, domain, {'name':'1', 'id': 2})
+        subject = RecordCollection(request, domain)
 
-        where_filter = self.stub_filter(mocker, [record])
-        mocker.patch.object(subject, 'where', where_filter)
+        where_filter = self.stub_filter(mocker, subject, [record])
 
         assert subject.find(1) == record
 
-    def test_find_returns_matching_record_by_id(self, mocker, subject):
-        response = self.stub_response({'record':{'name':'foo.com', 'id':1}})
-        request  = self.stub_request(subject, mocker, response)
+    def test_find_returns_matching_record_by_id(self, mocker, request, domain):
+        method  = self.stub_request(mocker, request, method_name = 'get', data = {'record':{'name':'foo.com', 'id':1}})
+        subject = RecordCollection(request, domain)
 
         record = subject.find(1)
 
-        request.assert_called_once_with('domains/foo.com/records/1')
+        method.assert_called_once_with('domains/foo.com/records/1')
 
         assert isinstance(record, dnsimple.record.Record)
         assert record.name == 'foo.com'
         assert record.id   == 1
 
-    def test_iteration_over_records(self, mocker, subject):
+    def test_iteration_over_records(self, mocker, request, subject):
         records = []
-        record  = Record(credentials, domain, {'name':'wwww', 'id':1})
+        record  = Record(request, domain, {'name': 'wwww', 'id': 1})
 
         mocker.patch.object(subject, 'all', lambda: [record])
 
@@ -196,19 +180,19 @@ class TestRecordCollection(TestHelper, object):
 
         assert records == [record]
 
-    def test_add_creates_new_record(self, mocker, subject):
-        response = self.stub_response({'record': {'name':'www'}})
-        request  = self.stub_request(subject, mocker, response, method = 'post')
+    def test_add_creates_new_record(self, mocker, request, domain):
+        method = self.stub_request(mocker, request, method_name = 'post', data = {'record': {'name':'www'}})
+        subject = RecordCollection(request, domain)
 
         record = subject.add({'name':'www'})
 
-        request.assert_called_once_with('domains/foo.com/records', {'record': {'name':'www'}})
+        method.assert_called_once_with('domains/foo.com/records', {'record': {'name':'www'}})
 
         assert isinstance(record, dnsimple.record.Record)
         assert record.name == 'www'
 
-    def test_add_returns_none_when_add_is_unsuccessful(self, mocker, subject):
-        response = self.stub_response({}, success = False)
-        request  = self.stub_request(subject, mocker, response, method = 'post')
+    def test_add_returns_none_when_add_is_unsuccessful(self, mocker, request, domain):
+        method = self.stub_request(mocker, request, method_name = 'post', success = False, data = {})
+        subject = RecordCollection(request, domain)
 
         assert subject.add({'name':'www'}) is None

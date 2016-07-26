@@ -1,4 +1,3 @@
-import requests
 from requests.exceptions import ConnectionError
 
 from ..context import dnsimple
@@ -27,8 +26,8 @@ class TestRequest:
     def test_base_uri_returns_production_uri_by_default(self, subject):
         assert subject.base_uri() == 'https://api.dnsimple.com/v1/'
 
-    def test_base_uri_returns_sandbox_uri_when_requested(self, subject):
-        Request.sandbox = True
+    def test_base_uri_returns_sandbox_uri_when_requested(self, password_credentials):
+        subject = Request(password_credentials, sandbox = True)
         assert subject.base_uri() == 'https://api.sandbox.dnsimple.com/v1/'
 
     def test_request_uri_creates_uri_from_path(self, subject):
