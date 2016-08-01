@@ -3,7 +3,6 @@ from .model import Model
 class Record(Model, object):
 
     def __init__(self, request, domain, attributes):
-        self.request = request
         self.domain  = domain
 
         super(Record, self).__init__(request, attributes)
