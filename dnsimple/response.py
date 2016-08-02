@@ -4,7 +4,10 @@ class Response:
         self.response = response
 
     def was_successful(self):
-        return self.response is not None and self.response.status_code in [200, 201]
+        return (
+            self.response is not None and
+            self.response.status_code in range(200, 300)
+        )
 
     def error(self):
         return self.to_dict('message')

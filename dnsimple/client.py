@@ -2,6 +2,7 @@ from .credentials        import InvalidCredentialsException, Credentials
 from .credentials_search import CredentialsSearch
 from .request            import Request
 from .domain_collection  import DomainCollection
+from .contact_collection import ContactCollection
 from .search             import Search
 
 class Client:
@@ -26,6 +27,12 @@ class Client:
 
     def domains(self):
         return DomainCollection(self.request)
+
+    def contacts(self):
+        return ContactCollection(self.request)
+
+    def contact(self, id_or_email):
+        return ContactCollection(self.request).find(id_or_email)
 
     def domain(self, name):
         return DomainCollection(self.request).find(name)

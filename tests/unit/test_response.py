@@ -21,7 +21,11 @@ class TestResponse:
         assert subject.was_successful() is False
 
     def test_was_successful_is_true_when_response_is_successful(self):
-        subject = Response(self.stub_response())
+        subject = Response(self.stub_response(status = 200))
+        assert subject.was_successful() is True
+
+    def test_was_successful_is_true_when_status_is_upper_limit_of_success_status_code(self):
+        subject = Response(self.stub_response(status = 299))
         assert subject.was_successful() is True
 
     def test_error_is_none_by_default(self):

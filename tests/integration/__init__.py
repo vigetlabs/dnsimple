@@ -14,3 +14,7 @@ def client():
 # Ensure no domains exist
 for domain in client().domains():
     domain.delete()
+
+# Ensure no contacts exist
+for contact in client().contacts():
+    contact.delete()
