@@ -31,6 +31,3 @@ class DomainCollection(Collection, object):
             domain = Domain(self.request, response.to_dict('domain', {}))
 
         return domain
-
-    def to_dict(self):
-        return [d.to_dict() for d in self.all()]

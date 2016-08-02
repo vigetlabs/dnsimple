@@ -46,9 +46,6 @@ class RecordCollection(Collection, object):
 
         return record
 
-    def to_dict(self):
-        return [r.to_dict() for r in self.all()]
-
     def __filter_params(self):
         params = {}
 

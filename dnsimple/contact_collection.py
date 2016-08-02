@@ -36,9 +36,6 @@ class ContactCollection(Collection, object):
 
         return contact
 
-    def to_dict(self):
-        return [c.to_dict() for c in self.all()]
-
     def __find_by_id(self, id):
         contact = None
 
