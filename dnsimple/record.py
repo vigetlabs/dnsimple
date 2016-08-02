@@ -8,8 +8,6 @@ class Record(Model, object):
         super(Record, self).__init__(request, attributes)
 
     def update(self, attributes):
-        success = False
-
         self.assign(attributes)
 
         response = self.request.put(
