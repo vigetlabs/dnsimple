@@ -1,13 +1,7 @@
-import pytest
-
 from ..context        import dnsimple
-from ..request_helper import RequestHelper
+from ..request_helper import RequestHelper, request
 
 from dnsimple.search import Search
-
-@pytest.fixture
-def request():
-    return dnsimple.request.Request(dnsimple.credentials.Credentials())
 
 class TestSearch(RequestHelper, object):
 

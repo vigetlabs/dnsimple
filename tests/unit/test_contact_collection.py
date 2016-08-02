@@ -1,14 +1,8 @@
-import pytest
-
 from ..context        import dnsimple
-from ..request_helper import RequestHelper
+from ..request_helper import RequestHelper, request
 
 from dnsimple.contact_collection import ContactCollection
 from dnsimple.contact            import Contact
-
-@pytest.fixture
-def request():
-    return dnsimple.request.Request(dnsimple.credentials.Credentials())
 
 class TestContactCollection(RequestHelper, object):
 

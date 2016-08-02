@@ -1,14 +1,10 @@
 import pytest
 
 from ..context         import dnsimple
-from ..request_helper  import RequestHelper
+from ..request_helper  import RequestHelper, request
 
 from dnsimple.domain            import Domain
 from dnsimple.record_collection import RecordCollection
-
-@pytest.fixture
-def request():
-    return dnsimple.request.Request(dnsimple.credentials.Credentials())
 
 @pytest.fixture
 def subject(request):

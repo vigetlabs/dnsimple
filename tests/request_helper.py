@@ -1,6 +1,12 @@
+import pytest
+
 from .context import dnsimple
 
 import requests
+
+@pytest.fixture
+def request():
+    return dnsimple.request.Request(dnsimple.credentials.Credentials())
 
 class RequestHelper:
 
