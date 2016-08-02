@@ -63,3 +63,27 @@ class TestRecord(RequestHelper, object):
     def test_to_dict_returns_attributes(self, request, domain):
         subject = Record(request, domain, {'key':'value'})
         assert subject.to_dict() == {'key':'value'}
+
+    def test_not_equal_when_no_ids(self, request, domain):
+        a = Record(request, domain, {})
+        b = Record(request, domain, {})
+
+        assert a != b
+
+    def test_not_equal_when_only_one_id(self, request, domain):
+        a = Record(request, domain, {'id': 1})
+        b = Record(request, domain, {})
+
+        assert a != b
+
+    def test_not_equal_when_ids_differ(self, request, domain):
+        a = Record(request, domain, {'id': 1})
+        b = Record(request, domain, {'id': 2})
+
+        assert a != b
+
+    def test_equal_when_ids_are_the_same(self, request, domain):
+        a = Record(request, domain, {'id': 1})
+        b = Record(request, domain, {'id': 1})
+
+        assert a == b

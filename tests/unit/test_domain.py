@@ -87,3 +87,27 @@ class TestDomain(RequestHelper, object):
         subject = Domain(request, {'name':'example.com'})
 
         assert subject.delete() is False
+
+    def test_not_equal_when_no_ids(self, request):
+        a = Domain(request, {})
+        b = Domain(request, {})
+
+        assert a != b
+
+    def test_not_equal_when_only_one_id(self, request):
+        a = Domain(request, {'id': 1})
+        b = Domain(request, {})
+
+        assert a != b
+
+    def test_not_equal_when_ids_differ(self, request):
+        a = Domain(request, {'id': 1})
+        b = Domain(request, {'id': 2})
+
+        assert a != b
+
+    def test_equal_when_ids_are_the_same(self, request):
+        a = Domain(request, {'id': 1})
+        b = Domain(request, {'id': 1})
+
+        assert a == b

@@ -15,6 +15,3 @@ class Contact(Model, object):
     def delete(self):
         response = self.request.delete('contacts/{0}'.format(self.id))
         return response.was_successful()
-
-    def __eq__(self, other):
-        return self.id and other.id and self.id == other.id
