@@ -1,4 +1,5 @@
 import os.path
+import uuid
 
 import pytest
 
@@ -10,6 +11,8 @@ def client():
         sandbox                  = True,
         credentials_search_paths = [os.path.dirname(__file__)]
     )
+
+unregistered_domain_name = 'example-{0}.com'.format(uuid.uuid4())
 
 # Ensure no domains exist
 for domain in client().domains():

@@ -4,6 +4,7 @@ from .request            import Request
 from .domain_collection  import DomainCollection
 from .contact_collection import ContactCollection
 from .search             import Search
+from .registration       import Registration
 
 class Client:
 
@@ -42,3 +43,6 @@ class Client:
 
     def check(self, name):
         return self.find(name).available
+
+    def register(self, name, contact):
+        return Registration(self.request).add(name, contact)
