@@ -4,7 +4,11 @@ init:
 	pip install -r requirements.txt
 
 integration:
-	py.test -s tests/integration/test_domains.py tests/integration/test_records.py
+	py.test -s \
+		tests/integration/test_domains.py \
+		tests/integration/test_records.py \
+		tests/integration/test_contacts.py \
+		tests/integration/test_registrations.py
 
 test:
 	py.test tests/unit
