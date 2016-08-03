@@ -1,10 +1,11 @@
 import pytest
 
-from ..context import dnsimple, fixture_path
+from ..context         import dnsimple, fixture_path
+from ..request_helper import RequestHelper, request
 
 from dnsimple.client import Client
 
-class TestClient:
+class TestClient(RequestHelper, object):
 
     def test_constructor_raises_errors_when_improperly_configured(self):
         with pytest.raises(dnsimple.credentials.InvalidCredentialsException) as ex:
@@ -50,3 +51,27 @@ class TestClient:
     def test_constructor_enables_sandbox(self):
         subject = Client(sandbox = True, email = 'user@host.com', password = 'password')
         assert subject.request.sandbox is True
+
+    def test_transfer_creates_domain_transfer(self, mocker, request):
+        method  = self.stub_request(mocker, request, method_name = 'post', success = True, data = {})
+        subject = Client(email = 'user@host.com', password = 'password')
+        contact = dnsimple.contact.Contact(request, {'id': 1})
+
+        subject.request = request
+
+        result = subject.transfer('foo.com', contact)
+
+        method.assert_called_once_with('domain_transfers', {'domain': {'name': 'foo.com', 'registrant_id': 1}})
+
+        assert result == True
+
+    def test_transfer_returns_false_when_transfer_fails(self, mocker, request):
+        method  = self.stub_request(mocker, request, method_name = 'post', success = False)
+        subject = Client(email = 'user@host.com', password = 'password')
+        contact = dnsimple.contact.Contact(request, {'id': 1})
+
+        subject.request = request
+
+        result = subject.transfer('foo.com', contact)
+
+        assert result == False

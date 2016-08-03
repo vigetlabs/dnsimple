@@ -167,3 +167,10 @@ class Client:
             Domain instance if successfully registered, otherwise ``None``
         """
         return Registration(self.request).add(name, contact)
+
+    def transfer(self, name, contact):
+        response = self.request.post('domain_transfers', {
+            'domain': {'name': name, 'registrant_id': contact.id}
+        })
+
+        return response.was_successful()

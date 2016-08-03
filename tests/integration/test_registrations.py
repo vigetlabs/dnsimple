@@ -2,8 +2,7 @@ import pytest
 
 from . import *
 
-@pytest.fixture
-def contact(client, email = 'user@host.com'):
+def find_or_create_contact(client, email):
     contact = client.contact(email)
 
     if not contact:
@@ -20,6 +19,10 @@ def contact(client, email = 'user@host.com'):
         })
 
     return contact
+
+@pytest.fixture
+def contact(client):
+    return find_or_create_contact(client, 'user@host.com')
 
 class TestRegistrations:
 
@@ -44,3 +47,11 @@ class TestRegistrations:
 
         domain = client.register('google.com', contact)
         assert domain is None
+
+    def test_transferring_domain(self, client, contact):
+        registered_domain_name = unregistered_domain_name # This was registered in previous test
+
+        target_contact = find_or_create_contact(client, 'other@host.com')
+
+        # Transferring within the account will fail, but this at least exercises the API code
+        assert not client.transfer(registered_domain_name, target_contact)
