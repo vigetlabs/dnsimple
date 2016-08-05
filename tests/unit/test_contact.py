@@ -5,6 +5,13 @@ from dnsimple.contact import Contact
 
 class TestContact(RequestHelper, object):
 
+    def test_assign_assigns_attributes(self, request):
+        subject = Contact(request, {'first_name': 'John'})
+        subject.assign({'first_name': 'Jane', 'last_name': 'Doe'})
+
+        assert subject.first_name == 'Jane'
+        assert subject.last_name  == 'Doe'
+
     def test_update_sends_update_request(self, mocker, request):
         method  = self.stub_request(mocker, request, method_name = 'put', data = {})
         subject = Contact(request, {'id': 1})
@@ -25,9 +32,9 @@ class TestContact(RequestHelper, object):
         method  = self.stub_request(mocker, request, method_name = 'put', data = {})
         subject = Contact(request, {'id': 1})
 
-        subject.update({'name':'other'})
+        subject.update({'email_address':'other@host.com'})
 
-        assert subject.name == 'other'
+        assert subject.email_address == 'other@host.com'
 
     def test_delete_removes_contact_record(self, mocker, request):
         method  = self.stub_request(mocker, request, method_name = 'delete', data = {})
@@ -44,6 +51,49 @@ class TestContact(RequestHelper, object):
         subject = Contact(request, {'id': 1})
 
         assert subject.delete() is False
+
+    def test_to_dict_returns_attributes(self, request):
+        subject = Contact(request, {
+            "id"               : 1,
+            "address1"         : "1 Main Street",
+            "address2"         : None,
+            "city"             : "Anytown",
+            "country"          : "US",
+            "email_address"    : "user@host.com",
+            "fax"              : None,
+            "first_name"       : "First",
+            "last_name"        : "Last",
+            "job_title"        : None,
+            "label"            : None,
+            "organization_name": None,
+            "phone"            : "+1 303 5551212",
+            "postal_code"      : "80301",
+            "state_province"   : "CO",
+            "created_at"       : "2016-08-01T00:00:00:000Z",
+            "updated_at"       : "2016-08-01T00:00:00:000Z",
+            "user_id"          : 3
+        })
+
+        assert subject.to_dict() == {
+            "id"               : 1,
+            "address1"         : "1 Main Street",
+            "address2"         : None,
+            "city"             : "Anytown",
+            "country"          : "US",
+            "email_address"    : "user@host.com",
+            "fax"              : None,
+            "first_name"       : "First",
+            "last_name"        : "Last",
+            "job_title"        : None,
+            "label"            : None,
+            "organization_name": None,
+            "phone"            : "+1 303 5551212",
+            "postal_code"      : "80301",
+            "state_province"   : "CO",
+            "created_at"       : "2016-08-01T00:00:00:000Z",
+            "updated_at"       : "2016-08-01T00:00:00:000Z",
+            "user_id"          : 3
+        }
 
     def test_not_equal_when_no_ids(self, request):
         a = Contact(request, {})

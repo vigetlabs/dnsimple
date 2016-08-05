@@ -46,7 +46,16 @@ class TestDomainCollection(RequestHelper, object):
 
         mocker.patch.object(subject, 'all', lambda: [domain_1, domain_2])
 
-        assert subject.to_dict() == [{'name':'one.com'}, {'name':'two.com'}]
+        results = subject.to_dict()
+
+        assert isinstance(results, list)
+        assert len(results) == 2
+
+        assert isinstance(results[0], dict)
+        assert isinstance(results[1], dict)
+
+        assert results[0]['name'] == 'one.com'
+        assert results[1]['name'] == 'two.com'
 
     def test_find_by_name_returns_none_when_the_domain_does_not_exist(self, mocker, request):
         method  = self.stub_request(mocker, request, method_name = 'get', success = False)

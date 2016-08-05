@@ -8,7 +8,7 @@ from dnsimple.record_collection import RecordCollection
 
 @pytest.fixture
 def subject(request):
-    return Domain(request, {'name':'example.com'})
+    return Domain(request, {'id': 1, 'name':'example.com'})
 
 class TestDomain(RequestHelper, object):
 
@@ -21,10 +21,47 @@ class TestDomain(RequestHelper, object):
     def test_assign_assigns_attributes(self, subject):
         subject.assign({'name': 'foo.com'})
 
+        assert subject.id   == 1
         assert subject.name == 'foo.com'
 
-    def test_to_dict_returns_attributes(self, subject):
-        assert subject.to_dict() == {'name':'example.com'}
+    def test_to_dict_returns_attributes(self, request):
+        subject = Domain(request, {
+            "id"             : 1,
+            "account_id"     : 2,
+            "auto_renew"     : False,
+            "created_at"     : "2016-08-01T00:00:00:000Z",
+            "expires_on"     : None,
+            "lockable"       : True,
+            "name"           : "foo.com",
+            "record_count"   : 5,
+            "registrant_id"  : 300,
+            "service_count"  : 0,
+            "state"          : "hosted",
+            "token"          : "token",
+            "unicode_name"   : "example.com",
+            "updated_at"     : "2016-08-01T00:00:00:000Z",
+            "user_id"        : 400,
+            "whois_protected": False
+        })
+
+        assert subject.to_dict() == {
+            "id"             : 1,
+            "account_id"     : 2,
+            "auto_renew"     : False,
+            "created_at"     : "2016-08-01T00:00:00:000Z",
+            "expires_on"     : None,
+            "lockable"       : True,
+            "name"           : "foo.com",
+            "record_count"   : 5,
+            "registrant_id"  : 300,
+            "service_count"  : 0,
+            "state"          : "hosted",
+            "token"          : "token",
+            "unicode_name"   : "example.com",
+            "updated_at"     : "2016-08-01T00:00:00:000Z",
+            "user_id"        : 400,
+            "whois_protected": False
+        }
 
     def test_records_creates_instance_of_collection(self,  request, subject):
         collection = subject.records()

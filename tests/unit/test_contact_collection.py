@@ -87,7 +87,7 @@ class TestContactCollection(RequestHelper, object):
 
         assert subject.add({}) is None
 
-    def to_dict_returns_dictionary_representation_of_contacts(self, mocker, request):
+    def test_to_dict_returns_dictionary_representation_of_contacts(self, mocker, request):
         contact_1 = Contact(request, {'id': 1, 'email_address': 'user_1@host.com'})
         contact_2 = Contact(request, {'id': 2, 'email_address': 'user_2@host.com'})
 
@@ -95,8 +95,17 @@ class TestContactCollection(RequestHelper, object):
 
         mocker.patch.object(subject, 'all', lambda: [contact_1, contact_2])
 
-        assert subject.to_dict() == [
-            {'id': 1, 'email_address': 'user_1@host.com'},
-            {'id': 2, 'email_address': 'user_2@host.com'}
-        ]
+        results = subject.to_dict()
+
+        assert isinstance(results, list)
+        assert len(results) == 2
+
+        assert isinstance(results[0], dict)
+        assert isinstance(results[1], dict)
+
+        assert results[0]['id']            == 1
+        assert results[0]['email_address'] == 'user_1@host.com'
+
+        assert results[1]['id']            == 2
+        assert results[1]['email_address'] == 'user_2@host.com'
 

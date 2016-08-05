@@ -18,6 +18,7 @@ class TestRecord(RequestHelper, object):
     def test_assign_assigns_attributes(self, subject):
         subject.assign({'name': 'www'})
 
+        assert subject.id   == 1
         assert subject.name == 'www'
 
     def test_update_sends_update_request(self, mocker, request, domain):
@@ -61,8 +62,33 @@ class TestRecord(RequestHelper, object):
         assert subject.delete() is False
 
     def test_to_dict_returns_attributes(self, request, domain):
-        subject = Record(request, domain, {'key':'value'})
-        assert subject.to_dict() == {'key':'value'}
+        subject = Record(request, domain, {
+            "id"           : 1,
+            "content"      : "ns1.dnsimple.com",
+            "created_at"   : "2016-08-01T00:00:00.000Z",
+            "domain_id"    : 24819,
+            "name"         : "Name",
+            "parent_id"    : 2,
+            "prio"         : 30,
+            "record_type"  : "NS",
+            "system_record": True,
+            "ttl"          : 3600,
+            "updated_at"   : "2016-08-01T00:00:00.000Z"
+        })
+
+        assert subject.to_dict() == {
+            "id"           : 1,
+            "content"      : "ns1.dnsimple.com",
+            "created_at"   : "2016-08-01T00:00:00.000Z",
+            "domain_id"    : 24819,
+            "name"         : "Name",
+            "parent_id"    : 2,
+            "prio"         : 30,
+            "record_type"  : "NS",
+            "system_record": True,
+            "ttl"          : 3600,
+            "updated_at"   : "2016-08-01T00:00:00.000Z"
+        }
 
     def test_not_equal_when_no_ids(self, request, domain):
         a = Record(request, domain, {})
