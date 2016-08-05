@@ -47,10 +47,69 @@ If you're just testing functionality, you can register a `sandbox account`_ and 
   import dnsimple
   client = dnsimple.Client(email = 'user@host.com', user_token = 'toke', sandbox = True)
 
+Managing Contacts
+~~~~~~~~~~~~~~~~~
+
+You can have multiple contacts associated with your account:
+
+.. code-block:: python
+
+  for contact in client.contacts():
+    print contact.id
+    print contact.email_address
+    print
+
+In addition to listing all contacts, you can find an individual contact by its email address:
+
+.. code-block:: python
+
+  contact = client.contact('user@host.com')
+
+Or ID:
+
+.. code-block:: python
+
+  contact = client.contact(1)
+
+Once you have a specific contact, you can update its attributes:
+
+.. code-block:: python
+
+  success = contact.update({'label': 'Technical Contact', 'email': 'new@host.com'})
+
+You can also remove an existing contact:
+
+.. code-block:: python
+
+  success = contact.delete()
+
+Domain Registrations
+~~~~~~~~~~~~~~~~~~~~
+
+A contact is required when registering a new domain.  First check the status:
+
+.. code-block:: python
+
+  status = client.find('foo.com')
+
+And then register the domain if it's available:
+
+.. code-block:: python
+
+  if status.available and status.price < 20:
+    domain = client.register('foo.com', contact)
+
+If you just want to check if the domain is available for registration (and don't need a ``Status`` object), you can do that quickly:
+
+.. code-block:: python
+
+  if client.check('foo.com'):
+    client.register('foo.com', contact)
+
 Managing Domains
 ~~~~~~~~~~~~~~~~
 
-Once your authentication credentials are set, you can fetch a list of domains:
+Whether or not your domain is registered through DNSimple, you can still manage it through the service.  You can list the domains you have already created:
 
 .. code-block:: python
 
@@ -66,7 +125,7 @@ Or find an individual domain:
   domain = client.domain('foo.com') # find by domain name
   domain = client.domain(1)         # find by ID
 
-If you want to register a domain, that is possible as well:
+If you want to create a new domain, that is possible as well:
 
 .. code-block:: python
 
@@ -74,6 +133,12 @@ If you want to register a domain, that is possible as well:
   if new_domain:
     print new_domain.id
     print new_domain.name
+
+And delete it if you no longer want it managed with DNSimple:
+
+.. code-block:: python
+
+  success = new_domain.delete()
 
 Managing DNS Records
 ~~~~~~~~~~~~~~~~~~~~
@@ -143,11 +208,17 @@ You can also create a new record:
     print new_record.name
     print new_record.record_type
 
+Update an existing record:
+
+.. code-block:: python
+
+  success = new_record.update({'ttl': 500})
+
 And destroy it when you're finished:
 
 .. code-block:: python
 
-  new_record.delete()
+  success = new_record.delete()
 
 License
 -------
