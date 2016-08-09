@@ -3,21 +3,37 @@ from ConfigParser import ConfigParser, NoSectionError, NoOptionError
 from .credentials import Credentials
 
 class CredentialsFile:
-
+    """Represents a file that contains authentication credentials."""
     section = 'DNSimple'
 
     def __init__(self, path):
+        """
+        Initialize the reader with the path to a credentials file.
+
+        Parameters
+        ----------
+        path: str
+            Full path to a credentials configuration file
+        """
         self.parser = ConfigParser()
         self.parser.read(path)
 
     def credentials(self):
+        """
+        Create a Credentials instance from the file contents.
+
+        Returns
+        -------
+        Credentials
+            A Credentials instance with the configured settings
+        """
         return Credentials(
-            self.first(['email', 'username']),
-            self.first(['user_token', 'api_token']),
-            self.first(['password'])
+            self.__first(['email', 'username']),
+            self.__first(['user_token', 'api_token']),
+            self.__first(['password'])
         )
 
-    def first(self, keys):
+    def __first(self, keys):
         for key in keys:
             value = self.__get(key)
 

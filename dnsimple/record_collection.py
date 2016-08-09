@@ -5,14 +5,35 @@ class MultipleResultsException(Exception):
     pass
 
 class RecordCollection(Collection, object):
+    """A collection of Record objects"""
 
     def __init__(self, request, domain, name = None, type = None):
+        """
+        Parameters
+        ----------
+        request: Request
+            A Request instance to use when fetching API responses
+        domain: Domain
+            A Domain instance to use for fetching records
+        name: str or None
+            An optional name for filtering records
+        type: str or None
+            An optional record type for filtering records
+        """
         self.request = request
         self.domain  = domain
         self.name    = name
         self.type    = type
 
     def all(self):
+        """
+        Return a list of all records for this domain.
+
+        Returns
+        -------
+        list
+            A list of Record instances
+        """
         uri      = 'domains/{0}/records'.format(self.domain.name)
         response = self.request.get(uri, self.__filter_params())
 
@@ -22,9 +43,43 @@ class RecordCollection(Collection, object):
         ]
 
     def where(self, name = None, type = None):
+        """
+        Return a filtered list of records for this domain.
+
+        Parameters
+        ----------
+        name: str or None
+            An optional name for filtering records
+        type: str or None
+            An optional record type for filtering records
+
+        Returns
+        -------
+        RecordCollection
+        """
         return self.__class__(self.request, self.domain, name, type)
 
     def find(self, id_or_name, type = None):
+        """
+        Find a specific record by ID or name, optionally filtering by type.
+
+        Parameters
+        ----------
+        id_or_name: int or str
+            The ID or name of the desired record
+        type: str or None
+            The type of record (e.g. 'A') to return
+
+        Returns
+        -------
+        record: Record or None
+            The matching Record instance, otherwise ``None``
+
+        Raises
+        ------
+        MultipleResultsException
+            If there is more than 1 record that matches the search criteria
+        """
         record = None
 
         try:
@@ -38,6 +93,19 @@ class RecordCollection(Collection, object):
         return record
 
     def add(self, attributes):
+        """
+        Create a new record associated with the current domain.
+
+        Parameters
+        ----------
+        attributes: dict
+            Mapping of attribute names to values
+
+        Returns
+        -------
+        record: Record or None
+            The new Record instance, ``None`` on failure
+        """
         record   = None
         response = self.request.post('domains/{0}/records'.format(self.domain.name), {'record': attributes})
 

@@ -3,6 +3,10 @@ import os.path
 from .credentials_file import CredentialsFile
 
 class CredentialsSearch:
+    """
+    Search configured paths for a file containing authentication
+    credentials.
+    """
     def __init__(self, search_paths, filename):
         self.search_paths = search_paths
         self.filename     = filename

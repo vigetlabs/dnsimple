@@ -5,8 +5,32 @@ class Model(object):
         self.attributes = attributes
 
     def assign(self, data = {}):
+        """
+        Assign attributes to the current model instance.
+
+        Parameters
+        ----------
+        data: dict
+            Mapping of attribute names to values
+
+        Returns
+        -------
+        dict
+            Key / value pairs passed to method
+        """
         self.data.update(data)
         return data
+
+    def to_dict(self):
+        """
+        Return the dictionary representation of the model instance.
+
+        Returns
+        -------
+        dict
+            Key / value pairs representing all attributes
+        """
+        return {name: getattr(self, name) for name in self.attributes.keys()}
 
     def __getattr__(self, name):
         if self.attributes.has_key(name):
@@ -21,9 +45,6 @@ class Model(object):
         raise AttributeError(
             "'{0}' object has no attribute '{1}'".format(self.__class__.__name__, name)
         )
-
-    def to_dict(self):
-        return {name: getattr(self, name) for name in self.attributes.keys()}
 
     def __eq__(self, other):
         return self.id and other.id and self.id == other.id

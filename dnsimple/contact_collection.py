@@ -2,11 +2,26 @@ from .collection import Collection
 from .contact    import Contact
 
 class ContactCollection(Collection, object):
+    """A collection of Contact objects"""
 
     def __init__(self, request):
+        """
+        Parameters
+        ----------
+        request: Request
+            A Request instance to use when fetching API responses
+        """
         self.request = request
 
     def all(self):
+        """
+        Return a list of all contacts for this account.
+
+        Returns
+        -------
+        list
+            A list of Contact instances
+        """
         response = self.request.get('contacts')
 
         return [
@@ -15,6 +30,19 @@ class ContactCollection(Collection, object):
         ]
 
     def find(self, id_or_email):
+        """
+        Find a specific contact by ID or email address.
+
+        Parameters
+        ----------
+        id_or_email: int or str
+            The ID or email address of the desired contact
+
+        Returns
+        -------
+        contact: Contact or None
+            The matching Contact instance, otherwise ``None``
+        """
         contact = None
 
         try:
@@ -28,6 +56,19 @@ class ContactCollection(Collection, object):
         return contact
 
     def add(self, attributes):
+        """
+        Create a new contact associated with the current account.
+
+        Parameters
+        ----------
+        attributes: dict
+            Mapping of attribute names to values
+
+        Returns
+        -------
+        contact: Contact or None
+            The new Contact instance, ``None`` on failure
+        """
         contact  = None
         response = self.request.post('contacts', {'contact': attributes})
 

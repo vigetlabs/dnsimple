@@ -6,14 +6,112 @@ from  requests.exceptions import RequestException
 from .response import Response
 
 class Request:
+    """Send authenticated requests to the DNSimple API."""
 
     def __init__(self, credentials, sandbox = False):
+        """
+        Parameters
+        ----------
+        credentials: Credentials
+            User credentials for making authenticated requests
+        sandbox: boolean
+            Whether or not to use the sandbox API endpoint
+        """
         self.credentials     = credentials
         self.sandbox         = sandbox
         self.default_headers = {
             'Accept':       'application/json',
             'Content-Type': 'application/json'
         }
+
+    def get(self, path, params = {}):
+        """
+        Perform an HTTP GET request.
+
+        Parameters
+        ----------
+        path: str
+            Path to the desired resource
+        params: dict
+            Optional parameters to pass to the request
+
+        Returns
+        -------
+        Response
+        """
+        return self.__handle_request(lambda:
+            requests.get(self.request_uri(path),
+                headers = self.headers(),
+                auth    = self.basic_auth(),
+                params  = params
+            )
+        )
+
+    def post(self, path, data):
+        """
+        Perform an HTTP POST request.
+
+        Parameters
+        ----------
+        path: str
+            Path to the desired resource
+        data: dict
+            Parameters to pass to the request
+
+        Returns
+        -------
+        Response
+        """
+        return self.__handle_request(lambda:
+            requests.post(self.request_uri(path),
+                headers = self.headers(),
+                auth    = self.basic_auth(),
+                data    = json.dumps(data)
+            )
+        )
+
+    def put(self, path, data):
+        """
+        Perform an HTTP PUT request.
+
+        Parameters
+        ----------
+        path: str
+            Path to the desired resource
+        data: dict
+            Parameters to pass to the request
+
+        Returns
+        -------
+        Response
+        """
+        return self.__handle_request(lambda:
+            requests.put(self.request_uri(path),
+                headers = self.headers(),
+                auth    = self.basic_auth(),
+                data    = json.dumps(data)
+            )
+        )
+
+    def delete(self, path):
+        """
+        Perform an HTTP DELETE request.
+
+        Parameters
+        ----------
+        path: str
+            Path to the desired resource
+
+        Returns
+        -------
+        Response
+        """
+        return self.__handle_request(lambda:
+            requests.delete(self.request_uri(path),
+                headers = self.headers(),
+                auth    = self.basic_auth()
+            )
+        )
 
     def base_uri(self):
         host = 'api.dnsimple.com'
@@ -42,41 +140,6 @@ class Request:
             auth = (self.credentials.email, self.credentials.password)
 
         return auth
-
-    def get(self, endpoint, params = {}):
-        return self.__handle_request(lambda:
-            requests.get(self.request_uri(endpoint),
-                headers = self.headers(),
-                auth    = self.basic_auth(),
-                params  = params
-            )
-        )
-
-    def post(self, endpoint, data):
-        return self.__handle_request(lambda:
-            requests.post(self.request_uri(endpoint),
-                headers = self.headers(),
-                auth    = self.basic_auth(),
-                data    = json.dumps(data)
-            )
-        )
-
-    def put(self, endpoint, data):
-        return self.__handle_request(lambda:
-            requests.put(self.request_uri(endpoint),
-                headers = self.headers(),
-                auth    = self.basic_auth(),
-                data    = json.dumps(data)
-            )
-        )
-
-    def delete(self, endpoint):
-        return self.__handle_request(lambda:
-            requests.delete(self.request_uri(endpoint),
-                headers = self.headers(),
-                auth    = self.basic_auth()
-            )
-        )
 
     def __handle_request(self, callback):
         try:
