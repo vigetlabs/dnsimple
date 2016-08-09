@@ -13,7 +13,7 @@ class TestSearch(RequestHelper, object):
 
         method.assert_called_once_with('domains/google.com/check')
 
-        assert isinstance(status, dnsimple.status.Status)
+        assert isinstance(status, dnsimple.models.Status)
         assert not status.available
 
     def test_find_fetches_unregistered_domain_registration_record(self, mocker, request):
@@ -22,5 +22,5 @@ class TestSearch(RequestHelper, object):
 
         status = subject.find('available.com')
 
-        assert isinstance(status, dnsimple.status.Status)
+        assert isinstance(status, dnsimple.models.Status)
         assert status.available

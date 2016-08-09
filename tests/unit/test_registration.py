@@ -2,7 +2,7 @@ from ..context        import dnsimple
 from ..request_helper import RequestHelper, request
 
 from dnsimple.registration import Registration
-from dnsimple.contact      import Contact
+from dnsimple.models      import Contact
 
 class TestRegistration(RequestHelper, object):
 
@@ -13,7 +13,7 @@ class TestRegistration(RequestHelper, object):
 
         domain = subject.add('foo.com', contact)
 
-        assert isinstance(domain, dnsimple.domain.Domain)
+        assert isinstance(domain, dnsimple.models.Domain)
         assert domain.id == 1
         assert domain.name == 'foo.com'
 

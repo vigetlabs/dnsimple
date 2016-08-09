@@ -2,7 +2,7 @@ from requests.exceptions import ConnectionError
 
 from ..context import dnsimple
 
-from dnsimple.request     import Request
+from dnsimple.connection  import Request
 from dnsimple.credentials import Credentials
 
 import pytest
@@ -74,7 +74,7 @@ class TestRequest:
             params  = {}
         )
 
-        assert isinstance(response, dnsimple.response.Response)
+        assert isinstance(response, dnsimple.connection.Response)
         assert response.response == 'response'
 
     def test_get_passes_params_to_request(self, token_credentials, mocker):
@@ -101,7 +101,7 @@ class TestRequest:
 
         response = subject.get('domains')
 
-        assert isinstance(response, dnsimple.response.Response)
+        assert isinstance(response, dnsimple.connection.Response)
         assert response.response is None
 
     def test_post_returns_wrapped_response_on_success(self, token_credentials, mocker):
@@ -120,7 +120,7 @@ class TestRequest:
             data    = '{"key": "value"}'
         )
 
-        assert isinstance(response, dnsimple.response.Response)
+        assert isinstance(response, dnsimple.connection.Response)
         assert response.response == 'response'
 
     def test_post_returns_empty_response_on_failure(self, token_credentials, mocker):
@@ -133,7 +133,7 @@ class TestRequest:
 
         response = subject.post('domains', {'key':'value'})
 
-        assert isinstance(response, dnsimple.response.Response)
+        assert isinstance(response, dnsimple.connection.Response)
         assert response.response is None
 
     def test_delete_returns_wrapped_response_on_success(self, token_credentials, mocker):
@@ -151,7 +151,7 @@ class TestRequest:
             auth    = ()
         )
 
-        assert isinstance(response, dnsimple.response.Response)
+        assert isinstance(response, dnsimple.connection.Response)
         assert response.response == 'response'
 
     def test_delete_returns_empty_response_on_failure(self, token_credentials, mocker):
@@ -164,5 +164,5 @@ class TestRequest:
 
         response = subject.delete('domains')
 
-        assert isinstance(response, dnsimple.response.Response)
+        assert isinstance(response, dnsimple.connection.Response)
         assert response.response is None

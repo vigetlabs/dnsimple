@@ -1,6 +1,6 @@
 from ..context import dnsimple, fixture_path
 
-from dnsimple.credentials_file import CredentialsFile
+from dnsimple.credentials import CredentialsFile
 
 class TestCredentialsFile:
     def test_credentials_are_blank_when_no_configuration_file(self):

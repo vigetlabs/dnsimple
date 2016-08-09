@@ -3,8 +3,7 @@ import pytest
 from ..context         import dnsimple
 from ..request_helper  import RequestHelper, request
 
-from dnsimple.record import Record
-from dnsimple.domain import Domain
+from dnsimple.models import Record, Domain
 
 @pytest.fixture
 def domain(request):

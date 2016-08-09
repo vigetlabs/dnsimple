@@ -27,7 +27,7 @@ class TestContacts:
             'phone':          '+1 303 5551212'
         })
 
-        assert isinstance(contact, dnsimple.contact.Contact)
+        assert isinstance(contact, dnsimple.models.Contact)
         assert contact.first_name == 'First'
         assert contact.last_name  == 'Last'
 

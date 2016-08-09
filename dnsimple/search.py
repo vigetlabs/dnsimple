@@ -1,4 +1,4 @@
-from .status import Status
+from .models import Status
 
 class Search:
     """Find the registration status for a domain name."""

@@ -1,4 +1,4 @@
-from .domain import Domain
+from .models import Domain
 
 class Registration:
     """Manages domain registrations in DNSimple."""

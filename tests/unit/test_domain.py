@@ -3,8 +3,8 @@ import pytest
 from ..context         import dnsimple
 from ..request_helper  import RequestHelper, request
 
-from dnsimple.domain            import Domain
-from dnsimple.record_collection import RecordCollection
+from dnsimple.models            import Domain
+from dnsimple.collections import RecordCollection
 
 @pytest.fixture
 def subject(request):
@@ -13,10 +13,10 @@ def subject(request):
 class TestDomain(RequestHelper, object):
 
     def setup_method(self, method):
-        self.original_find = dnsimple.record_collection.RecordCollection.find
+        self.original_find = dnsimple.collections.RecordCollection.find
 
     def teardown_method(self, method):
-        dnsimple.record_collection.RecordCollection.find = self.original_find
+        dnsimple.collections.RecordCollection.find = self.original_find
 
     def test_assign_assigns_attributes(self, subject):
         subject.assign({'name': 'foo.com'})
@@ -96,7 +96,7 @@ class TestDomain(RequestHelper, object):
         finder = mocker.stub()
         finder.return_value = 'record'
 
-        dnsimple.record_collection.RecordCollection.find = finder
+        dnsimple.collections.RecordCollection.find = finder
 
         assert subject.record('www') == 'record'
 
@@ -105,7 +105,7 @@ class TestDomain(RequestHelper, object):
     def test_record_invokes_finder_with_name_and_on_type(self, mocker, subject):
         finder = mocker.stub()
 
-        dnsimple.record_collection.RecordCollection.find = finder
+        dnsimple.collections.RecordCollection.find = finder
 
         subject.record('', type = 'A')
 

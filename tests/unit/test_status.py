@@ -1,6 +1,6 @@
 from ..context import dnsimple
 
-from dnsimple.status import Status
+from dnsimple.models import Status
 
 class TestStatus:
     def test_assign_assigns_attributes(self):

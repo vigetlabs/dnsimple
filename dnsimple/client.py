@@ -1,10 +1,9 @@
-from .credentials        import InvalidCredentialsException, Credentials
-from .credentials_search import CredentialsSearch
-from .request            import Request
-from .domain_collection  import DomainCollection
-from .contact_collection import ContactCollection
-from .search             import Search
-from .registration       import Registration
+from .credentials  import CredentialsSearch, Credentials
+from .exceptions   import InvalidCredentialsException
+from .connection   import Request
+from .search       import Search
+from .registration import Registration
+from .collections  import DomainCollection, ContactCollection
 
 class Client:
     """The main entry point for interacting with the DNSimple API."""

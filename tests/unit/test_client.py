@@ -20,7 +20,7 @@ class TestClient(RequestHelper, object):
     def test_constructor_configures_credentials_for_token_authentication(self):
         subject = Client(email = 'user@host.com', user_token = 'toke')
 
-        assert isinstance(subject.request, dnsimple.request.Request)
+        assert isinstance(subject.request, dnsimple.connection.Request)
 
         credentials = subject.request.credentials
 
@@ -55,7 +55,7 @@ class TestClient(RequestHelper, object):
     def test_transfer_creates_domain_transfer(self, mocker, request):
         method  = self.stub_request(mocker, request, method_name = 'post', success = True, data = {})
         subject = Client(email = 'user@host.com', password = 'password')
-        contact = dnsimple.contact.Contact(request, {'id': 1})
+        contact = dnsimple.models.Contact(request, {'id': 1})
 
         subject.request = request
 
@@ -68,7 +68,7 @@ class TestClient(RequestHelper, object):
     def test_transfer_returns_false_when_transfer_fails(self, mocker, request):
         method  = self.stub_request(mocker, request, method_name = 'post', success = False)
         subject = Client(email = 'user@host.com', password = 'password')
-        contact = dnsimple.contact.Contact(request, {'id': 1})
+        contact = dnsimple.models.Contact(request, {'id': 1})
 
         subject.request = request
 

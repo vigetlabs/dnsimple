@@ -1,7 +1,7 @@
 from ..context        import dnsimple
 from ..request_helper import RequestHelper, request
 
-from dnsimple.contact import Contact
+from dnsimple.models import Contact
 
 class TestContact(RequestHelper, object):
 

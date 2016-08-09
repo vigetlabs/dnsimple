@@ -3,9 +3,8 @@ import pytest
 from ..context         import dnsimple
 from ..request_helper  import RequestHelper, request
 
-from dnsimple.domain            import Domain
-from dnsimple.record            import Record
-from dnsimple.record_collection import RecordCollection
+from dnsimple.models            import Domain, Record
+from dnsimple.collections import RecordCollection
 
 @pytest.fixture
 def domain(request):
@@ -18,7 +17,7 @@ def subject(request, domain):
 class TestRecordCollection(RequestHelper, object):
 
     def stub_filter(self, mocker, subject, return_value):
-        request      = dnsimple.request.Request(dnsimple.credentials.Credentials())
+        request      = dnsimple.connection.Request(dnsimple.credentials.Credentials())
         domain       = Domain(request, {})
         filtered     = RecordCollection(request, domain)
         finder       = mocker.stub()
@@ -87,7 +86,7 @@ class TestRecordCollection(RequestHelper, object):
 
         record = records[0]
 
-        assert isinstance(record, dnsimple.record.Record)
+        assert isinstance(record, dnsimple.models.Record)
         assert record.name == 'www'
 
     def test_where_returns_new_instance_with_filters(self, subject):
@@ -147,7 +146,7 @@ class TestRecordCollection(RequestHelper, object):
 
         where_filter = self.stub_filter(mocker, subject, records)
 
-        with pytest.raises(dnsimple.record_collection.MultipleResultsException) as ex:
+        with pytest.raises(dnsimple.collections.MultipleResultsException) as ex:
             subject.find('www')
 
         assert 'Multiple results returned for query' in str(ex.value)
@@ -170,7 +169,7 @@ class TestRecordCollection(RequestHelper, object):
 
         method.assert_called_once_with('domains/foo.com/records/1')
 
-        assert isinstance(record, dnsimple.record.Record)
+        assert isinstance(record, dnsimple.models.Record)
         assert record.name == 'foo.com'
         assert record.id   == 1
 
@@ -193,7 +192,7 @@ class TestRecordCollection(RequestHelper, object):
 
         method.assert_called_once_with('domains/foo.com/records', {'record': {'name':'www'}})
 
-        assert isinstance(record, dnsimple.record.Record)
+        assert isinstance(record, dnsimple.models.Record)
         assert record.name == 'www'
 
     def test_add_returns_none_when_add_is_unsuccessful(self, mocker, request, domain):

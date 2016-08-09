@@ -38,7 +38,7 @@ class TestRegistrations:
     def test_registering_domain(self, client, contact):
         domain = client.register(unregistered_domain_name, contact)
 
-        assert isinstance(domain, dnsimple.domain.Domain)
+        assert isinstance(domain, dnsimple.models.Domain)
         assert domain.name == unregistered_domain_name
 
         status = client.find(unregistered_domain_name)

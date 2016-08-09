@@ -3,8 +3,8 @@ import pytest
 from ..context         import dnsimple
 from ..request_helper  import RequestHelper, request
 
-from dnsimple.domain_collection import DomainCollection
-from dnsimple.domain            import Domain
+from dnsimple.collections import DomainCollection
+from dnsimple.models            import Domain
 
 @pytest.fixture
 def subject(request):
@@ -32,7 +32,7 @@ class TestDomainCollection(RequestHelper, object):
 
         domain = domains[0]
 
-        assert isinstance(domain, dnsimple.domain.Domain)
+        assert isinstance(domain, dnsimple.models.Domain)
         assert domain.name == 'foo.com'
 
     def test_to_dict_returns_empty_list_when_no_domains(self, mocker, subject):
@@ -77,7 +77,7 @@ class TestDomainCollection(RequestHelper, object):
 
         method.assert_called_once_with('domains/foo.com')
 
-        assert isinstance(domain, dnsimple.domain.Domain)
+        assert isinstance(domain, dnsimple.models.Domain)
         assert domain.name == 'foo.com'
 
     def test_find_returns_matching_domain_by_id(self, mocker, request):
@@ -88,7 +88,7 @@ class TestDomainCollection(RequestHelper, object):
 
         method.assert_called_once_with('domains/1')
 
-        assert isinstance(domain, dnsimple.domain.Domain)
+        assert isinstance(domain, dnsimple.models.Domain)
         assert domain.name == 'foo.com'
 
     def test_iteration_over_domains(self, mocker, request, subject):
@@ -109,7 +109,7 @@ class TestDomainCollection(RequestHelper, object):
 
         method.assert_called_once_with('domains', {'domain': {'name':'foo.com'}})
 
-        assert isinstance(domain, dnsimple.domain.Domain)
+        assert isinstance(domain, dnsimple.models.Domain)
         assert domain.name == 'foo.com'
 
     def test_add_returns_none_when_add_is_unsuccessful(self, mocker, request, subject):

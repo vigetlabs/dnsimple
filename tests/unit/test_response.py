@@ -2,7 +2,7 @@ import requests.models
 
 from ..context import dnsimple
 
-from dnsimple.response import Response
+from dnsimple.connection import Response
 
 class TestResponse:
     def stub_response(self, status = 200, data = {}):

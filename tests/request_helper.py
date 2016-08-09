@@ -6,7 +6,7 @@ import requests
 
 @pytest.fixture
 def request():
-    return dnsimple.request.Request(dnsimple.credentials.Credentials())
+    return dnsimple.connection.Request(dnsimple.credentials.Credentials())
 
 class RequestHelper:
 
@@ -14,7 +14,7 @@ class RequestHelper:
         raw_response = requests.Response()
         raw_response.json = lambda: data
 
-        response = dnsimple.response.Response(raw_response)
+        response = dnsimple.connection.Response(raw_response)
         response.was_successful = lambda: success
 
         method = mocker.stub()

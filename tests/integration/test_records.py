@@ -68,7 +68,7 @@ class TestRecords:
         assert [r.content for r in domain.records(type = 'A', name = '')] == ['192.168.1.1']
 
         # Test find with multiple results
-        with pytest.raises(dnsimple.record_collection.MultipleResultsException) as ex:
+        with pytest.raises(dnsimple.collections.MultipleResultsException) as ex:
             domain.record('')
 
         assert 'Multiple results returned for query' in str(ex.value)

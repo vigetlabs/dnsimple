@@ -1,8 +1,8 @@
 from ..context        import dnsimple
 from ..request_helper import RequestHelper, request
 
-from dnsimple.contact_collection import ContactCollection
-from dnsimple.contact            import Contact
+from dnsimple.collections import ContactCollection
+from dnsimple.models      import Contact
 
 class TestContactCollection(RequestHelper, object):
 
