@@ -169,6 +169,21 @@ class Client:
         return Registration(self.request).add(name, contact)
 
     def transfer(self, name, contact):
+        """
+        Transfer a domain from another registrar into DNSimple.
+
+        Parameters
+        ----------
+        name: str
+            The name of the domain to transfer
+        contact: Contact
+            The contact who will hold the domain registration
+
+        Returns
+        -------
+        bool
+            Was the domain transfer successful?
+        """
         response = self.request.post('domain_transfers', {
             'domain': {'name': name, 'registrant_id': contact.id}
         })

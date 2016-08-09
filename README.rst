@@ -83,7 +83,7 @@ You can also remove an existing contact:
 
   success = contact.delete()
 
-Domain Registrations
+Registering Domains
 ~~~~~~~~~~~~~~~~~~~~
 
 A contact is required when registering a new domain.  First check the status:
@@ -139,6 +139,14 @@ And delete it if you no longer want it managed with DNSimple:
 .. code-block:: python
 
   success = new_domain.delete()
+
+Transferring Domains
+~~~~~~~~~~~~~~~~~~~~
+
+If you have a domain outside of DNSimple that you want to transfer in, you may do that as well:
+
+.. code-block:: python
+  success = client.transfer('foo.com', client.contact('user@host.com'))
 
 Managing DNS Records
 ~~~~~~~~~~~~~~~~~~~~
