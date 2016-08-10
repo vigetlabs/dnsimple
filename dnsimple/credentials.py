@@ -1,6 +1,9 @@
 import os.path
 
-from ConfigParser import ConfigParser, NoSectionError, NoOptionError
+try:
+    import ConfigParser as configparser
+except ImportError:
+    import configparser
 
 from .exceptions import InvalidCredentialsException
 
@@ -90,7 +93,7 @@ class CredentialsFile:
         path: str
             Full path to a credentials configuration file
         """
-        self.parser = ConfigParser()
+        self.parser = configparser.ConfigParser()
         self.parser.read(path)
 
     def credentials(self):
@@ -120,7 +123,7 @@ class CredentialsFile:
 
         try:
             value = self.parser.get(self.section, key)
-        except (NoSectionError, NoOptionError):
+        except (configparser.NoSectionError, configparser.NoOptionError):
             pass
 
         return value

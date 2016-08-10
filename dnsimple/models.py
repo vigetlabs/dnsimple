@@ -35,7 +35,7 @@ class Model(object):
         return {name: getattr(self, name) for name in self.attributes.keys()}
 
     def __getattr__(self, name):
-        if self.attributes.has_key(name):
+        if name in self.attributes:
             value = self.data.get(name)
 
             if value is not None:
