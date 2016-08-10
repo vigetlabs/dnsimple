@@ -1,6 +1,9 @@
 machine:
-  python:
-    version: 2.7.11
-test:
+  post:
+    - pyenv install 2.7.11
+    - pyenv install 3.5.1
+    - pyenv global 2.7.11 3.5.1
+dependencies:
   override:
-    - make all
+    - pip install -U pip
+    - pip install -U setuptools
