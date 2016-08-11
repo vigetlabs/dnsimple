@@ -26,6 +26,7 @@ def contact(client):
 
 class TestRegistrations:
 
+    @pytest.mark.xfail(reason = "Registration currently failing in sandbox API", strict = True)
     def test_domain_registration_availability(self, client):
         status = client.find('google.com')
         assert not status.available
@@ -35,6 +36,7 @@ class TestRegistrations:
         assert status.available
         assert client.check(unregistered_domain_name)
 
+    @pytest.mark.xfail(reason = "Registration currently failing in sandbox API", strict = True)
     def test_registering_domain(self, client, contact):
         domain = client.register(unregistered_domain_name, contact)
 
