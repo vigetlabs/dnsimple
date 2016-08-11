@@ -146,6 +146,7 @@ Transferring Domains
 If you have a domain outside of DNSimple that you want to transfer in, you may do that as well:
 
 .. code-block:: python
+
   success = client.transfer('foo.com', client.contact('user@host.com'))
 
 Managing DNS Records
