@@ -40,12 +40,30 @@ Or with a user token:
   import dnsimple
   client = dnsimple.Client(email = 'user@host.com', user_token = 'toke')
 
+The client can also pull your credentials from a ``.dnsimple`` configuration file located either in the current working directory or your home directory, though this is configurable via the ``credentials_search_paths`` option -- see ``help(dnsimple.Client)`` for details.  The format of the file is::
+
+  [DNSimple]
+  email: user@host.com
+  user_token: token
+
+This example shows token-based authentication, but any of the credentials options supported by ``dnsimple.Client`` are valid.  You can then create a client instance and the credentials will be fetched from the first credentials file found:
+
+.. code-block:: python
+
+  client = dnsimple.Client()
+
 If you're just testing functionality, you can register a `sandbox account`_ and connect to that instead of the production API endpoint:
 
 .. code-block:: python
 
   import dnsimple
   client = dnsimple.Client(email = 'user@host.com', user_token = 'toke', sandbox = True)
+
+Don't forget that you'll need specify the sandbox account when authenticating via your ``.dnsimple`` configuration file:
+
+.. code-block:: python
+
+  client = dnsimple.Client(sandbox = True)
 
 Managing Contacts
 ~~~~~~~~~~~~~~~~~
