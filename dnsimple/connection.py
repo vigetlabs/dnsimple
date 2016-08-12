@@ -142,8 +142,7 @@ class Request:
         return 'https://{0}/v1/'.format(host)
 
     def request_uri(self, path):
-        uri = self.base_uri() + path
-        return uri
+        return self.base_uri() + path
 
     def headers(self):
         headers = self.default_headers
