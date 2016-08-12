@@ -40,6 +40,14 @@ Or with a user token:
   import dnsimple
   client = dnsimple.Client(email = 'user@host.com', user_token = 'toke')
 
+These authentication methods grant access to manage all resources associated with your account, but you can also lock down management to a single domain using domain tokens.  Simply pass the domain token to the API client (which you can retrieve via the "Settings" page for your domain, or by calling ``domain.token`` for the domain you're interested in managing):
+
+.. code-block:: python
+
+  client = dnsimple.Client(domain_token = 'toke')
+
+Keep in mind that calls to ``client.domains().all()`` will raise an exception, but ``client.domain('foo.com')`` will retrieve the desired domain to manage.
+
 The client can also pull your credentials from a ``.dnsimple`` configuration file located either in the current working directory or your home directory, though this is configurable via the ``credentials_search_paths`` option -- see ``help(dnsimple.Client)`` for details.  The format of the file is::
 
   [DNSimple]
