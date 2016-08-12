@@ -3,6 +3,8 @@ import requests
 
 from requests.exceptions import RequestException
 
+from .exceptions import UnauthorizedException
+
 class Request:
     """Send authenticated requests to the DNSimple API."""
 
@@ -36,6 +38,11 @@ class Request:
         Returns
         -------
         Response
+
+        Raises
+        ------
+        UnauthorizedException
+            If the request results in a 401: Unauthorized response
         """
         return self.__handle_request(lambda:
             requests.get(self.request_uri(path),
@@ -59,6 +66,11 @@ class Request:
         Returns
         -------
         Response
+
+        Raises
+        ------
+        UnauthorizedException
+            If the request results in a 401: Unauthorized response
         """
         return self.__handle_request(lambda:
             requests.post(self.request_uri(path),
@@ -82,6 +94,11 @@ class Request:
         Returns
         -------
         Response
+
+        Raises
+        ------
+        UnauthorizedException
+            If the request results in a 401: Unauthorized response
         """
         return self.__handle_request(lambda:
             requests.put(self.request_uri(path),
@@ -103,6 +120,11 @@ class Request:
         Returns
         -------
         Response
+
+        Raises
+        ------
+        UnauthorizedException
+            If the request results in a 401: Unauthorized response
         """
         return self.__handle_request(lambda:
             requests.delete(self.request_uri(path),
@@ -141,7 +163,14 @@ class Request:
 
     def __handle_request(self, callback):
         try:
-            return Response(callback())
+            response = Response(callback())
+
+            if response.is_unauthorized():
+                raise UnauthorizedException(
+                    "You are not authorized to access that resource"
+                )
+
+            return response
         except requests.exceptions.RequestException:
             return Response(None)
 
@@ -170,6 +199,17 @@ class Response:
             self.response is not None and
             self.response.status_code in range(200, 300)
         )
+
+    def is_unauthorized(self):
+        """
+        Was the request unauthorized? Will return ``True`` when the response
+        code is 401 / Unauthorized.
+
+        Returns
+        -------
+        bool
+        """
+        return self.response is not None and self.response.status_code == 401
 
     def error(self):
         """

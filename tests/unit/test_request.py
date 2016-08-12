@@ -1,11 +1,13 @@
+import pytest
+
+import requests
 from requests.exceptions import ConnectionError
 
 from ..context import dnsimple
 
 from dnsimple.connection  import Request
 from dnsimple.credentials import Credentials
-
-import pytest
+from dnsimple.exceptions  import UnauthorizedException
 
 @pytest.fixture
 def token_credentials():
@@ -60,13 +62,14 @@ class TestRequest:
 
     def test_get_returns_wrapped_response_on_success(self, token_credentials, mocker):
         subject = Request(token_credentials)
+        response = requests.models.Response()
 
         get = mocker.stub()
-        get.return_value = 'response'
+        get.return_value = response
 
         mocker.patch('requests.get', get)
 
-        response = subject.get('domains')
+        api_response = subject.get('domains')
 
         get.assert_called_once_with('https://api.dnsimple.com/v1/domains',
             headers = {'Accept': 'application/json', 'Content-Type': 'application/json', 'X-DNSimple-Token': 'user@host.com:toke'},
@@ -74,8 +77,8 @@ class TestRequest:
             params  = {}
         )
 
-        assert isinstance(response, dnsimple.connection.Response)
-        assert response.response == 'response'
+        assert isinstance(api_response, dnsimple.connection.Response)
+        assert api_response.response == response
 
     def test_get_passes_params_to_request(self, token_credentials, mocker):
         subject = Request(token_credentials)
@@ -83,7 +86,7 @@ class TestRequest:
 
         mocker.patch('requests.get', get)
 
-        response = subject.get('domains', {'key':'value'})
+        api_response = subject.get('domains', {'key':'value'})
 
         get.assert_called_once_with('https://api.dnsimple.com/v1/domains',
             headers = {'Accept': 'application/json', 'Content-Type': 'application/json', 'X-DNSimple-Token': 'user@host.com:toke'},
@@ -99,20 +102,21 @@ class TestRequest:
 
         mocker.patch('requests.get', get)
 
-        response = subject.get('domains')
+        api_response = subject.get('domains')
 
-        assert isinstance(response, dnsimple.connection.Response)
-        assert response.response is None
+        assert isinstance(api_response, dnsimple.connection.Response)
+        assert api_response.response is None
 
     def test_post_returns_wrapped_response_on_success(self, token_credentials, mocker):
         subject = Request(token_credentials)
+        response = requests.models.Response()
 
         post = mocker.stub()
-        post.return_value = 'response'
+        post.return_value = response
 
         mocker.patch('requests.post', post)
 
-        response = subject.post('domains', {'key':'value'})
+        api_response = subject.post('domains', {'key':'value'})
 
         post.assert_called_once_with('https://api.dnsimple.com/v1/domains',
             headers = {'Accept': 'application/json', 'Content-Type': 'application/json', 'X-DNSimple-Token': 'user@host.com:toke'},
@@ -120,8 +124,8 @@ class TestRequest:
             data    = '{"key": "value"}'
         )
 
-        assert isinstance(response, dnsimple.connection.Response)
-        assert response.response == 'response'
+        assert isinstance(api_response, dnsimple.connection.Response)
+        assert api_response.response == response
 
     def test_post_returns_empty_response_on_failure(self, token_credentials, mocker):
         subject = Request(token_credentials)
@@ -131,28 +135,29 @@ class TestRequest:
 
         mocker.patch('requests.post', post)
 
-        response = subject.post('domains', {'key':'value'})
+        api_response = subject.post('domains', {'key':'value'})
 
-        assert isinstance(response, dnsimple.connection.Response)
-        assert response.response is None
+        assert isinstance(api_response, dnsimple.connection.Response)
+        assert api_response.response is None
 
     def test_delete_returns_wrapped_response_on_success(self, token_credentials, mocker):
         subject = Request(token_credentials)
+        response = requests.models.Response()
 
         delete = mocker.stub()
-        delete.return_value = 'response'
+        delete.return_value = response
 
         mocker.patch('requests.delete', delete)
 
-        response = subject.delete('domains')
+        api_response = subject.delete('domains')
 
         delete.assert_called_once_with('https://api.dnsimple.com/v1/domains',
             headers = {'Accept': 'application/json', 'Content-Type': 'application/json', 'X-DNSimple-Token': 'user@host.com:toke'},
             auth    = ()
         )
 
-        assert isinstance(response, dnsimple.connection.Response)
-        assert response.response == 'response'
+        assert isinstance(api_response, dnsimple.connection.Response)
+        assert api_response.response == response
 
     def test_delete_returns_empty_response_on_failure(self, token_credentials, mocker):
         subject = Request(token_credentials)
@@ -162,7 +167,23 @@ class TestRequest:
 
         mocker.patch('requests.delete', delete)
 
-        response = subject.delete('domains')
+        api_response = subject.delete('domains')
 
-        assert isinstance(response, dnsimple.connection.Response)
-        assert response.response is None
+        assert isinstance(api_response, dnsimple.connection.Response)
+        assert api_response.response is None
+
+    def test_unauthorized_response_raises_exception(self, token_credentials, mocker):
+        subject  = Request(token_credentials)
+        response = requests.models.Response()
+
+        response.status_code = 401
+
+        get = mocker.stub()
+        get.return_value = response
+
+        mocker.patch('requests.get', get)
+
+        with pytest.raises(UnauthorizedException) as exception:
+            subject.get('domains')
+
+        assert 'You are not authorized to access that resource' in str(exception.value)
