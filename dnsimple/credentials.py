@@ -9,7 +9,12 @@ from .exceptions import InvalidCredentialsException
 
 class Credentials:
     """API credentials storage and validation"""
-    def __init__(self, email = None, user_token = None, password = None):
+    def __init__(self,
+        email        = None,
+        user_token   = None,
+        password     = None,
+        domain_token = None
+    ):
         """
         Initialize credentials depending on type of authentication mode.
 
@@ -21,10 +26,13 @@ class Credentials:
             Password to use for HTTP basic authentication
         user_token: str
             Token to use for token-based authentication
+        domain_token: str
+            Token to use for domain token-based authentication
         """
         self.email        = email
         self.user_token   = user_token
         self.password     = password
+        self.domain_token = domain_token
 
     def is_blank(self):
         """
@@ -36,16 +44,19 @@ class Credentials:
             Were credentials supplied?
         """
         blank = True
-        blank = blank and self.email      is None
-        blank = blank and self.user_token is None
-        blank = blank and self.password   is None
+        blank = blank and self.email        is None
+        blank = blank and self.user_token   is None
+        blank = blank and self.password     is None
+        blank = blank and self.domain_token is None
 
         return blank
 
     def is_valid(self):
         """
         Check if credentials are valid.  Requires caller to specify
-        ``email`` along with ``password`` or ``user_token``
+        ``email`` along with ``password`` or ``user_token`` or to
+        specify ``domain_token`` if performing domain token-based
+        authentication.
 
         Returns
         -------
@@ -55,6 +66,7 @@ class Credentials:
         valid = False
         valid = bool(self.email and self.user_token)
         valid = bool(self.email and self.password) if not valid else valid
+        valid = bool(self.domain_token)            if not valid else valid
 
         return valid
 
@@ -79,6 +91,17 @@ class Credentials:
             Authenticate with ``email`` / ``user_token``?
         """
         return self.is_valid() and bool(self.user_token)
+
+    def is_domain_token_auth(self):
+        """
+        Should domain token-based authentication be used?
+
+        Returns
+        -------
+        bool
+            Authenticate with ``domain_token``?
+        """
+        return self.is_valid() and bool(self.domain_token)
 
 class CredentialsFile:
     """Represents a file that contains authentication credentials."""
@@ -106,9 +129,10 @@ class CredentialsFile:
             A Credentials instance with the configured settings
         """
         return Credentials(
-            self.__first(['email', 'username']),
-            self.__first(['user_token', 'api_token']),
-            self.__first(['password'])
+            email        = self.__first(['email', 'username']),
+            user_token   = self.__first(['user_token', 'api_token']),
+            password     = self.__first(['password']),
+            domain_token = self.__first(['domain_token'])
         )
 
     def __first(self, keys):

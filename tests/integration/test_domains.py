@@ -29,3 +29,24 @@ class TestDomains:
 
         assert [d.name for d in client.domains()] == names
 
+    def test_domain_token_authentication(self, client):
+        allowed_domain = client.domain('foo.com')
+        assert allowed_domain
+
+        client = dnsimple.Client(domain_token = allowed_domain.token, sandbox = True)
+
+        with pytest.raises(dnsimple.exceptions.UnauthorizedException) as exception:
+            client.domains().all()
+
+        assert "You are not authorized to access that resource" in str(exception.value)
+
+        # Requests for the domain return the domain record
+        assert client.domain('foo.com')     == allowed_domain
+
+        # Requests for another registered domain return the domain to which the token
+        # is associated
+        assert client.domain('bar.com') == allowed_domain
+
+        # Requests for any domain (hitting the /v1/domains/:domain endpoint) return
+        # the domain to which the token is associated
+        assert client.domain('missing.com') == allowed_domain

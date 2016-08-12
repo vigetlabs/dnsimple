@@ -35,13 +35,17 @@ class TestClient(RequestHelper, object):
         assert credentials.email    == 'user@host.com'
         assert credentials.password == 'password'
 
+    def test_constructor_configures_credentials_for_domain_token_authentication(self):
+        subject = Client(domain_token = 'token')
+        assert subject.request.credentials.domain_token == 'token'
+
     def test_constructor_configures_credentials_from_configuration_file(self):
         subject = Client(credentials_search_paths = [fixture_path('credentials')], credentials_filename = 'basic')
 
         credentials = subject.request.credentials
 
         assert credentials.email      == 'user@host.com'
-        assert credentials.user_token == 'token'
+        assert credentials.user_token == 'user_token'
         assert credentials.password   == 'password'
 
     def test_constructor_defaults_sandbox_to_false(self):

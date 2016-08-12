@@ -12,6 +12,7 @@ class Client:
         email                    = None,
         user_token               = None,
         password                 = None,
+        domain_token             = None,
         credentials_search_paths = ['.', '~'],
         credentials_filename     = '.dnsimple'
     ):
@@ -55,7 +56,7 @@ class Client:
             If no credentials are supplied or if a credentials file isn't
             found in the specified search path(s)
         """
-        credentials = Credentials(email, user_token, password)
+        credentials = Credentials(email, user_token, password, domain_token)
 
         if credentials.is_blank():
             credentials = CredentialsSearch(credentials_search_paths, credentials_filename).first()

@@ -23,7 +23,7 @@ class TestCredentialsSearch:
         assert isinstance(credentials, Credentials)
 
         assert credentials.email      == 'user@host.com'
-        assert credentials.user_token == 'token'
+        assert credentials.user_token == 'user_token'
         assert credentials.password   == 'password'
 
     def test_first_returns_first_match_when_only_one(self):
@@ -31,8 +31,8 @@ class TestCredentialsSearch:
         credentials = subject.first()
 
         assert isinstance(credentials, Credentials)
-        assert credentials.email == 'user@host.com'
-        assert credentials.user_token == 'token'
+        assert credentials.email      == 'user@host.com'
+        assert credentials.user_token == 'user_token'
         assert credentials.password   == 'password'
 
     def test_all_returns_multiple_matches(self):

@@ -151,6 +151,9 @@ class Request:
         if self.credentials.is_token_auth():
             headers.update({'X-DNSimple-Token': self.credentials.email + ':' + self.credentials.user_token})
 
+        if self.credentials.is_domain_token_auth():
+            headers.update({'X-DNSimple-Domain-Token': self.credentials.domain_token})
+
         return headers
 
     def basic_auth(self):

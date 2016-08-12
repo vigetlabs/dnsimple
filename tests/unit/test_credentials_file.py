@@ -31,14 +31,16 @@ class TestCredentialsFile:
         subject     = CredentialsFile(fixture_path('credentials', 'basic'))
         credentials = subject.credentials()
 
-        assert credentials.email      == 'user@host.com'
-        assert credentials.password   == 'password'
-        assert credentials.user_token == 'token'
+        assert credentials.email        == 'user@host.com'
+        assert credentials.password     == 'password'
+        assert credentials.user_token   == 'user_token'
+        assert credentials.domain_token == 'domain_token'
 
     def test_credentials_set_from_legacy_keys(self):
         subject     = CredentialsFile(fixture_path('credentials', 'legacy'))
         credentials = subject.credentials()
 
-        assert credentials.email      == 'user@host.com'
-        assert credentials.password   == 'password'
-        assert credentials.user_token == 'token'
+        assert credentials.email        == 'user@host.com'
+        assert credentials.password     == 'password'
+        assert credentials.user_token   == 'user_token'
+        assert credentials.domain_token == 'domain_token'
